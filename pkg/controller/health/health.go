@@ -58,7 +58,7 @@ func (base *Controller) Get(c *gin.Context) {
 		return
 	}
 	logger.Info("ping successfull")
-	rd := utility.BuildSuccessResponse(http.StatusOK, "ping successful", gin.H{"user": "user object"})
+	rd := utility.BuildSuccessResponse(http.StatusOK, "ping successful", gin.H{"verification": "verification object"})
 	c.JSON(http.StatusOK, rd)
 
 }
