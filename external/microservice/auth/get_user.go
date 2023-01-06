@@ -7,8 +7,8 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetUser(data external_models.GetUserRequestModel) (external_models.User, error) {
-	logger := utility.NewLogger()
+func GetUser(logger *utility.Logger, data external_models.GetUserRequestModel) (external_models.User, error) {
+
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetUserModel

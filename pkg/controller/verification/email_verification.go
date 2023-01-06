@@ -38,7 +38,7 @@ func (base *Controller) RequestEmailVerification(c *gin.Context) {
 		return
 	}
 
-	code, err := verification.RequestEmailVerificationService(req.AccountID, req.EmailAddress, base.Db)
+	code, err := verification.RequestEmailVerificationService(base.Logger, req.AccountID, req.EmailAddress, base.Db)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)

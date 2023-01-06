@@ -14,7 +14,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func RequestEmailVerificationService(accountID int, emailAddress string, db postgresql.Databases) (int, error) {
+func RequestEmailVerificationService(logger *utility.Logger, accountID int, emailAddress string, db postgresql.Databases) (int, error) {
 	var (
 		user             = external_models.User{}
 		verificationType = "email"
@@ -24,7 +24,7 @@ func RequestEmailVerificationService(accountID int, emailAddress string, db post
 	}
 
 	if accountID != 0 {
-		us, err := auth.GetUser(external_models.GetUserRequestModel{AccountID: uint(accountID)})
+		us, err := auth.GetUser(logger, external_models.GetUserRequestModel{AccountID: uint(accountID)})
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -34,7 +34,7 @@ func RequestEmailVerificationService(accountID int, emailAddress string, db post
 		}
 		user = us
 	} else if emailAddress != "" {
-		us, err := auth.GetUser(external_models.GetUserRequestModel{EmailAddress: emailAddress})
+		us, err := auth.GetUser(logger, external_models.GetUserRequestModel{EmailAddress: emailAddress})
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -105,7 +105,7 @@ func RequestEmailVerificationService(accountID int, emailAddress string, db post
 
 	}
 
-	notification.SendVerificationEmail(external_models.EmailNotificationRequest{
+	notification.SendVerificationEmail(logger, external_models.EmailNotificationRequest{
 		EmailAddress: user.EmailAddress,
 		AccountId:    user.AccountID,
 		Code:         uint(verificationCode.Code),
