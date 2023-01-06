@@ -23,6 +23,7 @@ func Setup(validator *validator.Validate, db postgresql.Databases) *gin.Engine {
 
 	ApiVersion := "v2"
 	Health(r, ApiVersion, validator, db)
+	Verification(r, ApiVersion, validator, db)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
