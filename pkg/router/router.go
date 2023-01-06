@@ -8,9 +8,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/vesicash/verification-ms/pkg/middleware"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
+	"github.com/vesicash/verification-ms/utility"
 )
 
-func Setup(validator *validator.Validate, db postgresql.Databases) *gin.Engine {
+func Setup(logger *utility.Logger, validator *validator.Validate, db postgresql.Databases) *gin.Engine {
 	r := gin.New()
 
 	// Middlewares
@@ -22,8 +23,8 @@ func Setup(validator *validator.Validate, db postgresql.Databases) *gin.Engine {
 	r.MaxMultipartMemory = 1 << 20 // 1MB
 
 	ApiVersion := "v2"
-	Health(r, ApiVersion, validator, db)
-	Verification(r, ApiVersion, validator, db)
+	Health(r, ApiVersion, validator, db, logger)
+	Verification(r, ApiVersion, validator, db, logger)
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

@@ -7,8 +7,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func SendVerificationEmail(data external_models.EmailNotificationRequest) error {
-	logger := utility.NewLogger()
+func SendVerificationEmail(logger *utility.Logger, data external_models.EmailNotificationRequest) error {
 	var (
 		outBoundResponse map[string]interface{}
 	)

@@ -32,11 +32,10 @@ func Connection() Databases {
 	return DB
 }
 
-func ConnectToDatabases(configDatabases config.Databases) Databases {
-	logger := utility.NewLogger()
+func ConnectToDatabases(logger *utility.Logger, configDatabases config.Databases) Databases {
 	dbsCV := configDatabases
 	databases := Databases{}
-	utility.LogAndPrint("connecting to databases")
+	utility.LogAndPrint(logger, "connecting to databases")
 	databases.Admin = connectToDb(dbsCV.DB_HOST, dbsCV.USERNAME, dbsCV.PASSWORD, dbsCV.ADMIN_DB, dbsCV.DB_PORT, dbsCV.SSLMODE, dbsCV.TIMEZONE, logger)
 	databases.Auth = connectToDb(dbsCV.DB_HOST, dbsCV.USERNAME, dbsCV.PASSWORD, dbsCV.AUTH_DB, dbsCV.DB_PORT, dbsCV.SSLMODE, dbsCV.TIMEZONE, logger)
 	databases.Notifications = connectToDb(dbsCV.DB_HOST, dbsCV.USERNAME, dbsCV.PASSWORD, dbsCV.NOTIFICATIONS_DB, dbsCV.DB_PORT, dbsCV.SSLMODE, dbsCV.TIMEZONE, logger)
@@ -47,9 +46,9 @@ func ConnectToDatabases(configDatabases config.Databases) Databases {
 	databases.Verification = connectToDb(dbsCV.DB_HOST, dbsCV.USERNAME, dbsCV.PASSWORD, dbsCV.VERIFICATION_DB, dbsCV.DB_PORT, dbsCV.SSLMODE, dbsCV.TIMEZONE, logger)
 	databases.Cron = connectToDb(dbsCV.DB_HOST, dbsCV.USERNAME, dbsCV.PASSWORD, dbsCV.CRON_DB, dbsCV.DB_PORT, dbsCV.SSLMODE, dbsCV.TIMEZONE, logger)
 
-	utility.LogAndPrint("connected to databases")
+	utility.LogAndPrint(logger, "connected to databases")
 
-	utility.LogAndPrint("connected to db")
+	utility.LogAndPrint(logger, "connected to db")
 	// migrations
 
 	DB = databases
@@ -71,12 +70,12 @@ func connectToDb(host, user, password, dbname, port, sslmode, timezone string, l
 		Logger: newLogger,
 	})
 	if err != nil {
-		utility.LogAndPrint(fmt.Sprintf("connection to %v db failed with: %v", dbname, err))
+		utility.LogAndPrint(logger, fmt.Sprintf("connection to %v db failed with: %v", dbname, err))
 		panic(err)
 
 	}
 
-	utility.LogAndPrint(fmt.Sprintf("connected to %v db", dbname))
+	utility.LogAndPrint(logger, fmt.Sprintf("connected to %v db", dbname))
 	return db
 }
 
