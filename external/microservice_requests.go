@@ -7,6 +7,7 @@ import (
 )
 
 type RequestObj struct {
+	Name         string
 	Path         string
 	Method       string
 	Headers      map[string]string
@@ -42,6 +43,15 @@ func FindMicroserviceRequest(name string, headers map[string]string, data interf
 		return RequestObj{
 			Path:         fmt.Sprintf("%v/v2/auth/get_access_token", config.Microservices.Auth),
 			Method:       "GET",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "validate_on_auth":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/validate_on_db", config.Microservices.Auth),
+			Method:       "POST",
 			Headers:      headers,
 			SuccessCode:  200,
 			RequestData:  data,
