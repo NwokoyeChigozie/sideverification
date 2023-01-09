@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/vesicash/verification-ms/external/request"
 	"github.com/vesicash/verification-ms/internal/models"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
 	"github.com/vesicash/verification-ms/services/ping"
@@ -16,6 +17,7 @@ type Controller struct {
 	Db        postgresql.Databases
 	Validator *validator.Validate
 	Logger    *utility.Logger
+	ExtReq    request.ExternalRequest
 }
 
 func (base *Controller) Post(c *gin.Context) {

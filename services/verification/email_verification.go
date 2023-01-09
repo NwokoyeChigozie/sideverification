@@ -7,14 +7,13 @@ import (
 	"time"
 
 	"github.com/vesicash/verification-ms/external/external_models"
-	"github.com/vesicash/verification-ms/external/microservice/auth"
-	"github.com/vesicash/verification-ms/external/microservice/notification"
+	"github.com/vesicash/verification-ms/external/request"
 	"github.com/vesicash/verification-ms/internal/models"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func RequestEmailVerificationService(logger *utility.Logger, accountID int, emailAddress string, db postgresql.Databases) (int, error) {
+func RequestEmailVerificationService(extReq request.ExternalRequest, logger *utility.Logger, accountID int, emailAddress string, db postgresql.Databases) (int, error) {
 	var (
 		user             = external_models.User{}
 		verificationType = "email"
@@ -24,9 +23,14 @@ func RequestEmailVerificationService(logger *utility.Logger, accountID int, emai
 	}
 
 	if accountID != 0 {
-		us, err := auth.GetUser(logger, external_models.GetUserRequestModel{AccountID: uint(accountID)})
+		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(accountID)})
 		if err != nil {
 			return http.StatusInternalServerError, err
+		}
+
+		us, ok := usItf.(external_models.User)
+		if !ok {
+			return http.StatusInternalServerError, fmt.Errorf("response data format error")
 		}
 
 		if us.ID == 0 {
@@ -34,9 +38,14 @@ func RequestEmailVerificationService(logger *utility.Logger, accountID int, emai
 		}
 		user = us
 	} else if emailAddress != "" {
-		us, err := auth.GetUser(logger, external_models.GetUserRequestModel{EmailAddress: emailAddress})
+		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: emailAddress})
 		if err != nil {
 			return http.StatusInternalServerError, err
+		}
+
+		us, ok := usItf.(external_models.User)
+		if !ok {
+			return http.StatusInternalServerError, fmt.Errorf("response data format error")
 		}
 
 		if us.ID == 0 {
@@ -105,7 +114,7 @@ func RequestEmailVerificationService(logger *utility.Logger, accountID int, emai
 
 	}
 
-	notification.SendVerificationEmail(logger, external_models.EmailNotificationRequest{
+	extReq.SendExternalRequest(request.SendVerificationEmail, external_models.EmailNotificationRequest{
 		EmailAddress: user.EmailAddress,
 		AccountId:    user.AccountID,
 		Code:         uint(verificationCode.Code),

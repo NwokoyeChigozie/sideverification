@@ -7,7 +7,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/vesicash/verification-ms/external/external_models"
+	"github.com/vesicash/verification-ms/external/request"
 	"github.com/vesicash/verification-ms/utility"
+	"gorm.io/gorm"
 )
 
 type Validation interface {
@@ -28,7 +31,12 @@ var (
 	ValidationNeeded = "Input validation failed on some fields"
 )
 
-func ValidateRequest(V interface{}) error {
+type ValidateRequestM struct {
+	Logger *utility.Logger
+	Test   bool
+}
+
+func (vr ValidateRequestM) ValidateRequest(V interface{}) error {
 
 	var err []ValidationError
 	if reflect.ValueOf(V).Kind() == reflect.Struct {
@@ -55,10 +63,10 @@ func ValidateRequest(V interface{}) error {
 						if len(firstSplit) == 2 {
 							secondSplit := strings.Split(firstSplit[1], "$")
 							if len(secondSplit) == 3 {
-								db := ReturnDatabase(secondSplit[0])
+								dbName := secondSplit[0]
 								tableName := secondSplit[1]
 								columnName := secondSplit[2]
-								if CheckExistsInTable(db, tableName, fmt.Sprintf("%v = ?", columnName), value) {
+								if !vr.ValidationCheck(dbName, tableName, "notexists", fmt.Sprintf("%v = ?", columnName), value) {
 									err = append(err, ValidationError{
 										Field: FieldT.Name,
 										Error: fmt.Sprintf("%v exists in %v table", columnName, tableName),
@@ -76,10 +84,10 @@ func ValidateRequest(V interface{}) error {
 						if len(firstSplit) == 2 {
 							secondSplit := strings.Split(firstSplit[1], "$")
 							if len(secondSplit) == 3 {
-								db := ReturnDatabase(secondSplit[0])
+								dbName := secondSplit[0]
 								tableName := secondSplit[1]
 								columnName := secondSplit[2]
-								if !CheckExistsInTable(db, tableName, fmt.Sprintf("%v = ?", columnName), value) {
+								if !vr.ValidationCheck(dbName, tableName, "exists", fmt.Sprintf("%v = ?", columnName), value) {
 									err = append(err, ValidationError{
 										Field: FieldT.Name,
 										Error: fmt.Sprintf("%v does not exist in %v table", columnName, tableName),
@@ -113,6 +121,56 @@ func ValidateRequest(V interface{}) error {
 		}
 	}
 	return fmt.Errorf(errString)
+}
+
+func (vr ValidateRequestM) ValidationCheck(dbName string, table, checkType string, query interface{}, args ...interface{}) bool {
+	db := ReturnDatabase(dbName)
+	switch dbName {
+	case "admin":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "auth":
+		er := request.ExternalRequest{
+			Logger: vr.Logger,
+			Test:   vr.Test,
+		}
+		status, err := er.SendExternalRequest("validate_on_auth", external_models.ValidateOnDBReq{
+			Table: table,
+			Type:  checkType,
+			Query: fmt.Sprintf("%v", query),
+			Value: args[0],
+		})
+		if err != nil {
+			vr.Logger.Info("error occurred in validation", err.Error())
+			return false
+		}
+		return status.(bool)
+	case "notifications":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "payment":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "reminder":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "subscription":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "transaction":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "verification":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	case "cron":
+		return checkForConnectedDB(db, table, checkType, query, args...)
+	default:
+		return false
+	}
+}
+
+func checkForConnectedDB(db *gorm.DB, table, checkType string, query interface{}, args ...interface{}) bool {
+	if checkType == "notexists" {
+		return !CheckExistsInTable(db, table, query, args...)
+	} else if checkType == "exists" {
+		return CheckExistsInTable(db, table, query, args...)
+	} else {
+		return false
+	}
 }
 
 func ValidateNext(value reflect.Value) (interface{}, bool) {

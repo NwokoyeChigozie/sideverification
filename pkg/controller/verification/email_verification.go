@@ -31,14 +31,15 @@ func (base *Controller) RequestEmailVerification(c *gin.Context) {
 		return
 	}
 
-	err = postgresql.ValidateRequest(req)
+	vr := postgresql.ValidateRequestM{Logger: base.Logger, Test: base.ExtReq.Test}
+	err = vr.ValidateRequest(req)
 	if err != nil {
 		rd := utility.BuildErrorResponse(http.StatusBadRequest, "error", err.Error(), err, nil)
 		c.JSON(http.StatusBadRequest, rd)
 		return
 	}
 
-	code, err := verification.RequestEmailVerificationService(base.Logger, req.AccountID, req.EmailAddress, base.Db)
+	code, err := verification.RequestEmailVerificationService(base.ExtReq, base.Logger, req.AccountID, req.EmailAddress, base.Db)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
