@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/vesicash/verification-ms/external/external_models"
-	"github.com/vesicash/verification-ms/external/microservice/auth"
+	"github.com/vesicash/verification-ms/external/mocks/auth_mocks"
 	"github.com/vesicash/verification-ms/utility"
 )
 
@@ -16,11 +16,51 @@ func SendVerificationEmail(logger *utility.Logger, idata interface{}) (interface
 		return nil, fmt.Errorf("request data format error")
 	}
 
-	_, err := auth.GetAccessToken(logger)
+	_, err := auth_mocks.GetAccessToken(logger)
 	if err != nil {
 		logger.Info("verification email", nil, err)
 		return nil, err
 	}
+
+	return nil, nil
+}
+
+func SendWelcomeEmail(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.AccountIDRequestModel)
+	if !ok {
+		return nil, fmt.Errorf("request data format error")
+	}
+
+	_, err := auth_mocks.GetAccessToken(logger)
+	if err != nil {
+		logger.Info("welcome email", outBoundResponse, err)
+		return nil, err
+	}
+
+	logger.Info("welcome email", data)
+
+	return nil, nil
+}
+
+func SendEmailVerifiedNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+	var (
+		outBoundResponse map[string]interface{}
+	)
+	data, ok := idata.(external_models.AccountIDRequestModel)
+	if !ok {
+		return nil, fmt.Errorf("request data format error")
+	}
+
+	_, err := auth_mocks.GetAccessToken(logger)
+	if err != nil {
+		logger.Info("email verified notification", outBoundResponse, err)
+		return nil, err
+	}
+
+	logger.Info("email verified notification", data)
 
 	return nil, nil
 }
