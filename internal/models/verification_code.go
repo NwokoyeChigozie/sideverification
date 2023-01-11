@@ -31,6 +31,29 @@ func (v *VerificationCode) GetVerificationCodeByID(db *gorm.DB) (int, error) {
 	}
 	return http.StatusOK, nil
 }
+func (v *VerificationCode) GetVerificationCodeByAccountIDAndCode(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, "code = ? and account_id = ?", v.Code, v.AccountID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
+func (v *VerificationCode) GetVerificationCodeByAccountIDAndToken(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, "token = ? and account_id = ?", v.Token, v.AccountID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
 
 func (v *VerificationCode) CreateVerificationCode(db *gorm.DB) error {
 	err := postgresql.CreateOneRecord(db, &v)

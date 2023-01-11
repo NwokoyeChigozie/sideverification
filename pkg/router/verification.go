@@ -7,6 +7,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/vesicash/verification-ms/external/request"
 	"github.com/vesicash/verification-ms/pkg/controller/verification"
+	"github.com/vesicash/verification-ms/pkg/middleware"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
 	"github.com/vesicash/verification-ms/utility"
 )
@@ -18,6 +19,13 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 	verificationUrl := r.Group(fmt.Sprintf("%v/verification", ApiVersion))
 	{
 		verificationUrl.POST("/email", verification.RequestEmailVerification)
+		verificationUrl.POST("/email/verify", verification.VerifyEmail)
+
+	}
+
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
+	{
+		verificationAuthUrl.POST("/bvn/verify", verification.VerifyBVN)
 	}
 	return r
 }

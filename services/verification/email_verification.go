@@ -60,7 +60,7 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 		return http.StatusInternalServerError, err
 	}
 
-	verification := models.Verification{}
+	verification := models.Verification{AccountID: int(user.AccountID), VerificationType: verificationType}
 	verificationCode := models.VerificationCode{}
 	code, err := verification.GetVerificationByAccountIDAndType(db.Verification)
 	if err != nil {
@@ -119,6 +119,123 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 		AccountId:    user.AccountID,
 		Code:         uint(verificationCode.Code),
 		Token:        verificationCode.Token,
+	})
+
+	return http.StatusOK, nil
+}
+
+func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, req models.VerifyEmailRequest, db postgresql.Databases) (int, error) {
+	var (
+		user             = external_models.User{}
+		verificationType = "email"
+	)
+	if req.AccountID == 0 && req.EmailAddress == "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
+	}
+	if req.Code == 0 && req.Token == "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either code or token")
+	}
+
+	if req.Code != 0 && req.Token != "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either code or token")
+	}
+
+	if req.AccountID != 0 {
+		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+
+		us, ok := usItf.(external_models.User)
+		if !ok {
+			return http.StatusInternalServerError, fmt.Errorf("response data format error")
+		}
+
+		if us.ID == 0 {
+			return http.StatusInternalServerError, fmt.Errorf("user not found")
+		}
+		user = us
+	} else if req.EmailAddress != "" {
+		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: req.EmailAddress})
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+
+		us, ok := usItf.(external_models.User)
+		if !ok {
+			return http.StatusInternalServerError, fmt.Errorf("response data format error")
+		}
+
+		if us.ID == 0 {
+			return http.StatusInternalServerError, fmt.Errorf("user not found")
+		}
+		user = us
+	}
+
+	verification := models.Verification{AccountID: int(user.AccountID), VerificationType: verificationType}
+	code, err := verification.GetVerificationByAccountIDAndType(db.Verification)
+	if err != nil {
+		if code == http.StatusInternalServerError {
+			return code, err
+		}
+		return code, fmt.Errorf("verification not requested")
+	}
+
+	verificationCode := models.VerificationCode{AccountID: int(user.AccountID), Code: req.Code, Token: req.Token}
+	if req.Token != "" && req.Code == 0 {
+		code, err := verificationCode.GetVerificationCodeByAccountIDAndToken(db.Verification)
+		if err != nil {
+			if code == http.StatusInternalServerError {
+				return code, err
+			}
+			return code, fmt.Errorf("invalid token")
+		}
+
+		parseInt, err := strconv.Atoi(verificationCode.ExpiresAt)
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+
+		unixTimeUTC := time.Unix(int64(parseInt), 0)
+		if time.Now().After(unixTimeUTC) {
+			return http.StatusBadRequest, fmt.Errorf("expired token")
+		}
+
+	}
+
+	if req.Code != 0 && req.Token == "" {
+		code, err := verificationCode.GetVerificationCodeByAccountIDAndCode(db.Verification)
+		if err != nil {
+			if code == http.StatusInternalServerError {
+				return code, err
+			}
+			return code, fmt.Errorf("invalid code")
+		}
+
+		parseInt, err := strconv.Atoi(verificationCode.ExpiresAt)
+		if err != nil {
+			return http.StatusInternalServerError, err
+		}
+
+		unixTimeUTC := time.Unix(int64(parseInt), 0)
+		if time.Now().After(unixTimeUTC) {
+			return http.StatusBadRequest, fmt.Errorf("expired code")
+		}
+
+	}
+
+	verification.IsVerified = true
+	verification.VerifiedAt = time.Now()
+	err = verification.UpdateAllFields(db.Verification)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
+	extReq.SendExternalRequest(request.SendWelcomeEmail, external_models.AccountIDRequestModel{
+		AccountId: user.AccountID,
+	})
+	extReq.SendExternalRequest(request.SendEmailVerifiedNotification, external_models.AccountIDRequestModel{
+		AccountId: user.AccountID,
 	})
 
 	return http.StatusOK, nil

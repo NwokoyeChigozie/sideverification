@@ -6,3 +6,6 @@ type EmailNotificationRequest struct {
 	Code         uint   `json:"code"`
 	Token        string `json:"token"`
 }
+type AccountIDRequestModel struct {
+	AccountId uint `json:"account_id"`
+}

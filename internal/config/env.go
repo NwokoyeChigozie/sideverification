@@ -1,5 +1,14 @@
 package config
 
+type Configuration struct {
+	Server        ServerConfiguration
+	Databases     Databases
+	TestDatabases Databases
+	Microservices Microservices
+	App           App
+	Monnify       Monnify
+}
+
 type BaseConfig struct {
 	SERVER_PORT                      string `mapstructure:"SERVER_PORT"`
 	SERVER_SECRET                    string `mapstructure:"SERVER_SECRET"`
@@ -61,6 +70,18 @@ type BaseConfig struct {
 	MS_UPLOAD       string `mapstructure:"MS_UPLOAD"`
 	MS_VERIFICATION string `mapstructure:"MS_VERIFICATION"`
 	MS_WIDGET       string `mapstructure:"MS_WIDGET"`
+
+	MONNIFY_API_KEY                   string `mapstructure:"MONNIFY_API_KEY"`
+	MONNIFY_SECRET                    string `mapstructure:"MONNIFY_SECRET"`
+	MONNIFY_ENDPOINT                  string `mapstructure:"MONNIFY_ENDPOINT"`
+	MONNIFY_CONTRACT_CODE             string `mapstructure:"MONNIFY_CONTRACT_CODE"`
+	MONNIFY_BASE64_KEY                string `mapstructure:"MONNIFY_BASE64_KEY"`
+	MONNIFY_API                       string `mapstructure:"MONNIFY_API"`
+	MONNIFY_DISBURSEMENT_ENDPOINT     string `mapstructure:"MONNIFY_DISBURSEMENT_ENDPOINT"`
+	MONNIFY_DISBURSEMENT_USERNAME     string `mapstructure:"MONNIFY_DISBURSEMENT_USERNAME"`
+	MONNIFY_DISBURSEMENT_PASSWORD     string `mapstructure:"MONNIFY_DISBURSEMENT_PASSWORD"`
+	MONNIFY_DISBURSEMENT_ACCOUNT      string `mapstructure:"MONNIFY_DISBURSEMENT_ACCOUNT"`
+	MONNIFY_DISBURSEMENT_ACCOUNT_NAME string `mapstructure:"MONNIFY_DISBURSEMENT_ACCOUNT_NAME"`
 }
 
 func (config *BaseConfig) SetupConfigurationn() *Configuration {
@@ -130,6 +151,19 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			Upload:       config.MS_UPLOAD,
 			Verification: config.MS_VERIFICATION,
 			Widget:       config.MS_WIDGET,
+		},
+		Monnify: Monnify{
+			MonnifyApiKey:                  config.MONNIFY_API_KEY,
+			MonnifySecret:                  config.MONNIFY_SECRET,
+			MonnifyEndpoint:                config.MONNIFY_ENDPOINT,
+			MonnifyContractCode:            config.MONNIFY_CONTRACT_CODE,
+			MonnifyBase64Key:               config.MONNIFY_BASE64_KEY,
+			MonnifyApi:                     config.MONNIFY_API,
+			MonnifyDisbursementEndpoint:    config.MONNIFY_DISBURSEMENT_ENDPOINT,
+			MonnifyDisbursementUsername:    config.MONNIFY_DISBURSEMENT_USERNAME,
+			MonnifyDisbursementPassword:    config.MONNIFY_DISBURSEMENT_PASSWORD,
+			MonnifyDisbursementAccount:     config.MONNIFY_DISBURSEMENT_ACCOUNT,
+			MonnifyDisbursementAccountName: config.MONNIFY_DISBURSEMENT_ACCOUNT_NAME,
 		},
 	}
 }

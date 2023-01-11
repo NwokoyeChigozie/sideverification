@@ -133,7 +133,7 @@ func (vr ValidateRequestM) ValidationCheck(dbName string, table, checkType strin
 			Logger: vr.Logger,
 			Test:   vr.Test,
 		}
-		status, err := er.SendExternalRequest("validate_on_auth", external_models.ValidateOnDBReq{
+		status, err := er.SendExternalRequest(request.ValidateOnAuth, external_models.ValidateOnDBReq{
 			Table: table,
 			Type:  checkType,
 			Query: fmt.Sprintf("%v", query),

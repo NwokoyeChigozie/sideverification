@@ -7,6 +7,10 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
+var (
+	ValidateAuthorizationRes *external_models.ValidateAuthorizationDataModel
+)
+
 func ValidateOnAuth(logger *utility.Logger, idata interface{}) (bool, error) {
 
 	_, ok := idata.(external_models.ValidateOnDBReq)
@@ -18,4 +22,21 @@ func ValidateOnAuth(logger *utility.Logger, idata interface{}) (bool, error) {
 	logger.Info("validate on auth", true)
 
 	return true, nil
+}
+
+func ValidateAuthorization(logger *utility.Logger, idata interface{}) (external_models.ValidateAuthorizationDataModel, error) {
+
+	_, ok := idata.(external_models.ValidateAuthorizationReq)
+	if !ok {
+		logger.Info("validate authorization", idata, "request data format error")
+		return external_models.ValidateAuthorizationDataModel{}, fmt.Errorf("request data format error")
+	}
+
+	if ValidateAuthorizationRes == nil {
+		logger.Info("validate authorization", User, "validate authorization response not provided")
+		return external_models.ValidateAuthorizationDataModel{}, fmt.Errorf("validate authorization response not provided")
+	}
+
+	logger.Info("validate authorization", ValidateAuthorizationRes)
+	return *ValidateAuthorizationRes, nil
 }
