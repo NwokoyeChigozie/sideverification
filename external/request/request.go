@@ -25,6 +25,7 @@ var (
 	SendVerificationEmail         string = "send_verification_email"
 	SendWelcomeEmail              string = "send_welcome_email"
 	SendEmailVerifiedNotification string = "send_email_verified_notification"
+	SendSmsToPhone                string = "send_sms_to_phone"
 
 	// third party
 	MonnifyLogin           string = "monnify_login"
@@ -48,6 +49,8 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 			return notification.SendWelcomeEmail(er.Logger, data)
 		case "send_email_verified_notification":
 			return notification.SendEmailVerifiedNotification(er.Logger, data)
+		case "send_sms_to_phone":
+			return notification.SendSendSMSToPhone(er.Logger, data)
 		case "monnify_login":
 			return monnify.MonnifyLogin(er.Logger, data)
 		case "monnify_match_bvn_details":

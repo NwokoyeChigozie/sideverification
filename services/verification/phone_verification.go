@@ -13,17 +13,18 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func RequestEmailVerificationService(extReq request.ExternalRequest, logger *utility.Logger, accountID int, emailAddress string, db postgresql.Databases) (int, error) {
+func RequestPhoneVerificationService(extReq request.ExternalRequest, logger *utility.Logger, req models.RequestPhoneVerificationRequest, db postgresql.Databases) (int, error) {
 	var (
 		user             = external_models.User{}
-		verificationType = "email"
+		verificationType = "phone"
 	)
-	if accountID == 0 && emailAddress == "" {
-		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
+
+	if req.AccountID == 0 && req.PhoneNumber == "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either account id or/and phone number")
 	}
 
-	if accountID != 0 {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(accountID)})
+	if req.PhoneNumber != "" {
+		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{PhoneNumber: req.PhoneNumber})
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -37,8 +38,8 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
-	} else if emailAddress != "" {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: emailAddress})
+	} else if req.AccountID != 0 {
+		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
 		if err != nil {
 			return http.StatusInternalServerError, err
 		}
@@ -52,6 +53,10 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
+	}
+
+	if (req.AccountID != 0 && req.PhoneNumber != "") && (user.AccountID != uint(req.AccountID)) {
+		return http.StatusBadRequest, fmt.Errorf("phone number is in use by another customer")
 	}
 
 	vCode := utility.GetRandomNumbersInRange(111111, 999999)
@@ -127,24 +132,38 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 
 	}
 
-	extReq.SendExternalRequest(request.SendVerificationEmail, external_models.EmailNotificationRequest{
-		EmailAddress: user.EmailAddress,
-		AccountId:    user.AccountID,
-		Code:         uint(verificationCode.Code),
-		Token:        verificationCode.Token,
+	var phone string
+	if req.PhoneNumber != "" {
+		ph, status := utility.PhoneValid(req.PhoneNumber)
+		if !status {
+			return http.StatusBadRequest, fmt.Errorf("invalid phone number")
+		}
+		phone = ph
+	}
+
+	if phone == "" {
+		phone = user.PhoneNumber
+	}
+
+	if phone == "" {
+		return http.StatusBadRequest, fmt.Errorf("user has no recorded phone number")
+	}
+
+	extReq.SendExternalRequest(request.SendSmsToPhone, external_models.SMSToPhoneNotificationRequest{
+		AccountId:   user.AccountID,
+		Message:     "Hi. Your Vesicash Phone Number Verification Code is: " + strconv.Itoa(vCode),
+		PhoneNumber: phone,
 	})
 
 	return http.StatusOK, nil
 }
 
-func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, req models.VerifyEmailRequest, db postgresql.Databases) (int, error) {
+func VerifyPhoneService(extReq request.ExternalRequest, logger *utility.Logger, req models.VerifyPhoneRequest, db postgresql.Databases) (int, error) {
 	var (
 		user             = external_models.User{}
-		verificationType = "email"
+		verificationType = "phone"
 	)
-	if req.AccountID == 0 && req.EmailAddress == "" {
-		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
-	}
+
 	if req.Code == 0 && req.Token == "" {
 		return http.StatusBadRequest, fmt.Errorf("enter either code or token")
 	}
@@ -153,36 +172,18 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 		return http.StatusBadRequest, fmt.Errorf("enter either code or token")
 	}
 
-	if req.AccountID != 0 {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
-		if err != nil {
-			return http.StatusInternalServerError, err
-		}
+	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
 
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
+	user, ok := usItf.(external_models.User)
+	if !ok {
+		return http.StatusInternalServerError, fmt.Errorf("response data format error")
+	}
 
-		if us.ID == 0 {
-			return http.StatusInternalServerError, fmt.Errorf("user not found")
-		}
-		user = us
-	} else if req.EmailAddress != "" {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: req.EmailAddress})
-		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
-			return http.StatusInternalServerError, fmt.Errorf("user not found")
-		}
-		user = us
+	if user.ID == 0 {
+		return http.StatusInternalServerError, fmt.Errorf("user not found")
 	}
 
 	verification := models.Verification{AccountID: int(user.AccountID), VerificationType: verificationType}
@@ -243,13 +244,6 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
-
-	extReq.SendExternalRequest(request.SendWelcomeEmail, external_models.AccountIDRequestModel{
-		AccountId: user.AccountID,
-	})
-	extReq.SendExternalRequest(request.SendEmailVerifiedNotification, external_models.AccountIDRequestModel{
-		AccountId: user.AccountID,
-	})
 
 	return http.StatusOK, nil
 }

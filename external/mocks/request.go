@@ -30,6 +30,8 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		return notification_mocks.SendWelcomeEmail(er.Logger, data)
 	case "send_email_verified_notification":
 		return notification_mocks.SendEmailVerifiedNotification(er.Logger, data)
+	case "send_sms_to_phone":
+		return notification_mocks.SendSendSMSToPhone(er.Logger, data)
 	case "monnify_login":
 		return monnify_mocks.MonnifyLogin(er.Logger, data)
 	case "monnify_match_bvn_details":
