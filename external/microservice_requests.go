@@ -93,6 +93,15 @@ func FindMicroserviceRequest(name string, headers map[string]string, data interf
 			RequestData:  data,
 			DecodeMethod: JsonDecodeMethod,
 		}, nil
+	case "send_sms_to_phone":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/email/phone/send/sms_to_phone", config.Microservices.Notification),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
 	default:
 		return RequestObj{}, fmt.Errorf("request not found")
 	}
