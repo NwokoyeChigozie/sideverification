@@ -15,11 +15,12 @@ func SendVerificationEmail(logger *utility.Logger, idata interface{}) (interface
 	)
 	data, ok := idata.(external_models.EmailNotificationRequest)
 	if !ok {
+		logger.Info("verification email", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := auth.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("verification email", outBoundResponse, err)
+		logger.Info("verification email", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -32,7 +33,7 @@ func SendVerificationEmail(logger *utility.Logger, idata interface{}) (interface
 	logger.Info("verification email", data)
 	err = external.SendRequest(logger, "service", "send_verification_email", headers, data, &outBoundResponse)
 	if err != nil {
-		logger.Info("verification email", outBoundResponse, err)
+		logger.Info("verification email", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("verification email", outBoundResponse)
@@ -50,7 +51,7 @@ func SendWelcomeEmail(logger *utility.Logger, idata interface{}) (interface{}, e
 	}
 	accessToken, err := auth.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("welcome email", outBoundResponse, err)
+		logger.Info("welcome email", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -63,7 +64,7 @@ func SendWelcomeEmail(logger *utility.Logger, idata interface{}) (interface{}, e
 	logger.Info("welcome email", data)
 	err = external.SendRequest(logger, "service", "send_welcome_email", headers, data, &outBoundResponse)
 	if err != nil {
-		logger.Info("welcome email", outBoundResponse, err)
+		logger.Info("welcome email", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("welcome email", outBoundResponse)
@@ -81,7 +82,7 @@ func SendEmailVerifiedNotification(logger *utility.Logger, idata interface{}) (i
 	}
 	accessToken, err := auth.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("email verified notification", outBoundResponse, err)
+		logger.Info("email verified notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -94,7 +95,7 @@ func SendEmailVerifiedNotification(logger *utility.Logger, idata interface{}) (i
 	logger.Info("email verified notification", data)
 	err = external.SendRequest(logger, "service", "send_email_verified_notification", headers, data, &outBoundResponse)
 	if err != nil {
-		logger.Info("email verified notification", outBoundResponse, err)
+		logger.Info("email verified notification", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("email verified notification", outBoundResponse)

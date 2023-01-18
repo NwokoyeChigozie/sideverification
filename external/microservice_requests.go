@@ -93,9 +93,81 @@ func FindMicroserviceRequest(name string, headers map[string]string, data interf
 			RequestData:  data,
 			DecodeMethod: JsonDecodeMethod,
 		}, nil
-	case "send_sms_to_phone":
+	case "get_user_credential":
 		return RequestObj{
-			Path:         fmt.Sprintf("%v/email/phone/send/sms_to_phone", config.Microservices.Notification),
+			Path:         fmt.Sprintf("%v/v2/auth/get_user_credentials", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "create_user_credential":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/create_user_credentials", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "update_user_credential":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/update_user_credentials", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "get_user_profile":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/get_user_profile", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "get_business_profile":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/get_business_profile", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "get_country":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/get_country", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "get_bank_details":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/get_bank_detail", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "verification_failed_notification":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/email/send/verification_failed", config.Microservices.Notification),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "verification_successful_notification":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/email/send/verification_successful", config.Microservices.Notification),
 			Method:       "POST",
 			Headers:      headers,
 			SuccessCode:  200,

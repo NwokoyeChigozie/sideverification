@@ -15,11 +15,12 @@ func SendSendSMSToPhone(logger *utility.Logger, idata interface{}) (interface{},
 	)
 	data, ok := idata.(external_models.SMSToPhoneNotificationRequest)
 	if !ok {
+		logger.Info("sms to phone", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
 	accessToken, err := auth.GetAccessToken(logger)
 	if err != nil {
-		logger.Info("send sms to phone", outBoundResponse, err)
+		logger.Info("send sms to phone", outBoundResponse, err.Error())
 		return nil, err
 	}
 
@@ -32,7 +33,7 @@ func SendSendSMSToPhone(logger *utility.Logger, idata interface{}) (interface{},
 	logger.Info("send sms to phone", data)
 	err = external.SendRequest(logger, "service", "send_sms_to_phone", headers, data, &outBoundResponse)
 	if err != nil {
-		logger.Info("send sms to phone", outBoundResponse, err)
+		logger.Info("send sms to phone", outBoundResponse, err.Error())
 		return nil, err
 	}
 	logger.Info("send sms to phone", outBoundResponse)

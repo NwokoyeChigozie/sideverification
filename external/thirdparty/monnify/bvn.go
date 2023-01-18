@@ -23,7 +23,7 @@ func MonnifyLogin(logger *utility.Logger, idata interface{}) (string, error) {
 
 	err := external.SendRequest(logger, "third_party", "monnify_login", headers, nil, &outBoundResponse)
 	if err != nil {
-		logger.Info("monnify login", outBoundResponse, err)
+		logger.Info("monnify login", outBoundResponse, err.Error())
 		return "", err
 	}
 	logger.Info("monnify login", outBoundResponse)
@@ -39,12 +39,13 @@ func MonnifyMatchBvnDetails(logger *utility.Logger, idata interface{}) (bool, er
 
 	token, err := MonnifyLogin(logger, nil)
 	if err != nil {
-		logger.Info("monnify match bvn details", outBoundResponse, err)
+		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
 	}
 
 	data, ok := idata.(external_models.MonnifyMatchBvnDetailsReq)
 	if !ok {
+		logger.Info("monnify match bvn details", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 
@@ -56,7 +57,7 @@ func MonnifyMatchBvnDetails(logger *utility.Logger, idata interface{}) (bool, er
 	logger.Info("monnify match bvn details", data)
 	err = external.SendRequest(logger, "third_party", "monnify_match_bvn_details", headers, data, &outBoundResponse)
 	if err != nil {
-		logger.Info("monnify match bvn details", outBoundResponse, err)
+		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
 	}
 	logger.Info("monnify match bvn details", outBoundResponse)

@@ -63,7 +63,6 @@ func CheckExistsInTable1(db *gorm.DB, table string, query interface{}, args ...i
 		}
 	}
 
-	fmt.Println("get result", tx.RowsAffected, result)
 	return true
 }
 

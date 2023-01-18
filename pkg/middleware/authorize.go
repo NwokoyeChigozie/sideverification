@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mitchellh/mapstructure"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/external/request"
 	"github.com/vesicash/verification-ms/internal/config"
@@ -103,17 +102,7 @@ func (at AuthorizationType) ValidateAuthType(c *gin.Context, extReq request.Exte
 		return dataResponse.Message, false
 	}
 
-	if dataResponse.Data == nil {
-		return "error getting user data", false
-	}
-
-	user := external_models.User{}
-	err = mapstructure.Decode(*dataResponse.Data, &user)
-	if err != nil {
-		return err.Error(), false
-	}
-
-	models.MyIdentity = &user
+	models.MyIdentity = &dataResponse.Data
 	return "authorized", true
 }
 

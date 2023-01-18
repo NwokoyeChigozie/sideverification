@@ -43,20 +43,19 @@ func TestBVNVerifiaction(t *testing.T) {
 		}
 	)
 
-	var testUserMap map[string]interface{}
-	inrec, err := json.Marshal(testUser)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = json.Unmarshal(inrec, &testUserMap)
-	if err != nil {
-		t.Fatal(err)
-	}
+	// inrec, err := json.Marshal(testUser)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// err = json.Unmarshal(inrec, &testUserMap)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
 
 	auth_mocks.ValidateAuthorizationRes = &external_models.ValidateAuthorizationDataModel{
 		Status:  true,
 		Message: "authorized",
-		Data:    &testUserMap,
+		Data:    testUser,
 	}
 
 	veri := verification.Controller{Db: db, Validator: validatorRef, Logger: logger, ExtReq: request.ExternalRequest{

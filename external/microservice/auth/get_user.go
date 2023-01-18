@@ -18,6 +18,7 @@ func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, e
 
 	data, ok := idata.(external_models.GetUserRequestModel)
 	if !ok {
+		logger.Info("get user", idata, "request data format error")
 		return outBoundResponse.Data.User, fmt.Errorf("request data format error")
 	}
 
@@ -29,7 +30,7 @@ func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, e
 	logger.Info("get user", data)
 	err := external.SendRequest(logger, "service", "get_user", headers, data, &outBoundResponse)
 	if err != nil {
-		logger.Info("get user", outBoundResponse, err)
+		logger.Info("get user", outBoundResponse, err.Error())
 		return outBoundResponse.Data.User, err
 	}
 	logger.Info("get user", outBoundResponse)
