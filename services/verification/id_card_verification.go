@@ -65,6 +65,7 @@ func VerifyIDCardService(extReq request.ExternalRequest, logger *utility.Logger,
 		return http.StatusBadRequest, err
 	}
 	regex := GetCountryVerificationTypeRegex(country.CountryCode, req.Type)
+	fmt.Println("regex", regex)
 	if regex != "" {
 		if !validateID(req.ID, req.Type, regex) {
 			return http.StatusBadRequest, fmt.Errorf("Invalid ID value supplied, make sure it's the correct value format for %v in your country %v, check your card to verify", req.Type, country.Name)
@@ -205,6 +206,7 @@ func validateID(id, vType, regex string) bool {
 }
 
 func GetCountryVerificationTypeRegex(countryCode, vType string) string {
+	fmt.Println("vv")
 	countryCode, vType = strings.ToUpper(countryCode), strings.ToUpper(vType)
 	switch countryCode {
 	case "NG":
@@ -220,6 +222,7 @@ func GetCountryVerificationTypeRegex(countryCode, vType string) string {
 		case "VOTER_ID":
 			return `^(?i)[A-Z_0-9 ]{9,23}$`
 		case "NATIONAL_ID":
+			fmt.Println("vvhere")
 			return `^\d{10,11}$`
 		case "BANK_ACCOUNT":
 			return `^\d{10,}$`

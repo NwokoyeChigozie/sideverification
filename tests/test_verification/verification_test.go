@@ -15,7 +15,6 @@ import (
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/external/mocks/auth_mocks"
 	"github.com/vesicash/verification-ms/external/request"
-	"github.com/vesicash/verification-ms/internal/models"
 	"github.com/vesicash/verification-ms/pkg/controller/verification"
 	"github.com/vesicash/verification-ms/pkg/middleware"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
@@ -23,7 +22,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func TestUploadVerificationDoc(t *testing.T) {
+func TestFetchVerifiaction(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -49,13 +48,6 @@ func TestUploadVerificationDoc(t *testing.T) {
 		Message: "authorized",
 		Data:    testUser,
 	}
-	auth_mocks.UsersCredential = &external_models.UsersCredential{
-		ID:                 uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		AccountID:          int(testUser.AccountID),
-		Bvn:                "6736828697397",
-		IdentificationType: "cac",
-		IdentificationData: "data",
-	}
 
 	veri := verification.Controller{Db: db, Validator: validatorRef, Logger: logger, ExtReq: request.ExternalRequest{
 		Logger: logger,
@@ -63,68 +55,18 @@ func TestUploadVerificationDoc(t *testing.T) {
 	}}
 	r := gin.Default()
 
-	type requestBody struct {
-		Type string `json:"type"`
-		Data string `json:"data"`
-	}
-
 	tests := []struct {
 		Name         string
-		RequestBody  requestBody
+		RequestBody  interface{}
 		ExpectedCode int
 		Headers      map[string]string
 		Message      string
 	}{
 		{
-			Name: "OK upload verification doc",
-			RequestBody: requestBody{
-				Type: "cac",
-				Data: "data",
-			},
+			Name:         "OK fetch verification",
+			RequestBody:  nil,
 			ExpectedCode: http.StatusOK,
-			Message:      "Uploaded/Modified.",
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
-		{
-			Name: "no type",
-			RequestBody: requestBody{
-				Data: "data",
-			},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
-		{
-			Name: "no data",
-			RequestBody: requestBody{
-				Type: "cac",
-			},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
-		{
-			Name:         "no input",
-			RequestBody:  requestBody{},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
-		{
-			Name: "invalid type",
-			RequestBody: requestBody{
-				Type: "incorrect",
-			},
-			ExpectedCode: http.StatusBadRequest,
+			Message:      "success",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"Authorization": "Bearer " + token.String(),
@@ -134,17 +76,16 @@ func TestUploadVerificationDoc(t *testing.T) {
 
 	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
-		verificationAuthUrl.POST("/id/upload", veri.UploadVerificationDoc)
+		verificationAuthUrl.GET("/fetch", veri.FetchUserVerifications)
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/id/upload"}
+			URI := url.URL{Path: "/v2/verification/fetch"}
 
-			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
+			req, err := http.NewRequest(http.MethodGet, URI.String(), &b)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -178,8 +119,7 @@ func TestUploadVerificationDoc(t *testing.T) {
 	}
 
 }
-
-func TestVerifyIDCard(t *testing.T) {
+func TestCheckVerifiaction(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -205,40 +145,6 @@ func TestVerifyIDCard(t *testing.T) {
 		Message: "authorized",
 		Data:    testUser,
 	}
-	auth_mocks.UsersCredential = &external_models.UsersCredential{
-		ID:                 uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		AccountID:          int(testUser.AccountID),
-		Bvn:                "6736828697397",
-		IdentificationType: "cac",
-		IdentificationData: "data",
-	}
-	auth_mocks.UserProfile = &external_models.UserProfile{
-		ID:        uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		AccountID: int(testUser.AccountID),
-		Country:   "NG",
-		Currency:  "NGN",
-	}
-
-	auth_mocks.Country = &external_models.Country{
-		ID:           uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		Name:         "nigeria",
-		CountryCode:  "NG",
-		CurrencyCode: "NGN",
-	}
-
-	auth_mocks.BankDetail = &external_models.BankDetail{
-		ID:          uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		AccountID:   int(testUser.AccountID),
-		BankID:      1,
-		AccountName: "account_name",
-		AccountNo:   "12345678912",
-		BankName:    "bank name",
-	}
-
-	auth_mocks.BusinessProfile = &external_models.BusinessProfile{
-		ID:        uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		AccountID: int(testUser.AccountID),
-	}
 
 	veri := verification.Controller{Db: db, Validator: validatorRef, Logger: logger, ExtReq: request.ExternalRequest{
 		Logger: logger,
@@ -246,46 +152,35 @@ func TestVerifyIDCard(t *testing.T) {
 	}}
 	r := gin.Default()
 
+	type requestBody struct {
+		Type string `json:"type"`
+	}
+
 	tests := []struct {
 		Name         string
-		RequestBody  models.VerifyIdCardRequest
+		RequestBody  requestBody
 		ExpectedCode int
 		Headers      map[string]string
 		Message      string
 	}{
 		{
-			Name: "OK verify ID",
-			RequestBody: models.VerifyIdCardRequest{
-				Type: "national_id",
-				ID:   "21197814830",
-				Meta: "meta",
+			Name: "OK type id",
+			RequestBody: requestBody{
+				Type: "id",
 			},
 			ExpectedCode: http.StatusOK,
-			Message:      "Your verification is in progress, you will be notified once completed.",
+			Message:      "success",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"Authorization": "Bearer " + token.String(),
 			},
-		},
-		{
-			Name: "no type",
-			RequestBody: models.VerifyIdCardRequest{
-				ID:   "21197814830",
-				Meta: "meta",
+		}, {
+			Name: "OK type email",
+			RequestBody: requestBody{
+				Type: "email",
 			},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
-		{
-			Name: "no id",
-			RequestBody: models.VerifyIdCardRequest{
-				Type: "national_id",
-				Meta: "meta",
-			},
-			ExpectedCode: http.StatusBadRequest,
+			ExpectedCode: http.StatusOK,
+			Message:      "success",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"Authorization": "Bearer " + token.String(),
@@ -293,7 +188,7 @@ func TestVerifyIDCard(t *testing.T) {
 		},
 		{
 			Name:         "no input",
-			RequestBody:  models.VerifyIdCardRequest{},
+			RequestBody:  requestBody{},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
@@ -302,9 +197,8 @@ func TestVerifyIDCard(t *testing.T) {
 		},
 		{
 			Name: "invalid type",
-			RequestBody: models.VerifyIdCardRequest{
+			RequestBody: requestBody{
 				Type: "incorrect",
-				ID:   "21197814830",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -316,15 +210,14 @@ func TestVerifyIDCard(t *testing.T) {
 
 	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
-		verificationAuthUrl.POST("/id/verify", veri.VerifyIDCard)
+		verificationAuthUrl.POST("/check", veri.CheckVerification)
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/id/verify"}
+			URI := url.URL{Path: "/v2/verification/check"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
@@ -341,7 +234,6 @@ func TestVerifyIDCard(t *testing.T) {
 			tst.AssertStatusCode(t, rr.Code, test.ExpectedCode)
 
 			data := tst.ParseResponse(rr)
-			fmt.Println(data)
 
 			code := int(data["code"].(float64))
 			tst.AssertStatusCode(t, code, test.ExpectedCode)

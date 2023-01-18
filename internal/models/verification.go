@@ -24,6 +24,11 @@ type Verification struct {
 	Tries              int       `gorm:"column:tries; type:int; default: 0" json:"tries"`
 }
 
+type CheckVerificationServiceresponseModel struct {
+	Verified        bool            `json:"verified"`
+	VerificationDoc VerificationDoc `json:"verification_doc"`
+}
+
 func (v *Verification) CreateVerification(db *gorm.DB) error {
 	err := postgresql.CreateOneRecord(db, &v)
 	if err != nil {
@@ -34,6 +39,39 @@ func (v *Verification) CreateVerification(db *gorm.DB) error {
 
 func (v *Verification) GetVerificationByAccountIDAndType(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &v, "account_id = ? and LOWER(verification_type) = ?", v.AccountID, strings.ToLower(v.VerificationType))
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+func (v *Verification) GetVerificationByAccountIDAndTypeAndIsverified(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, "account_id = ? and LOWER(verification_type) = ? and is_verified = ?", v.AccountID, strings.ToLower(v.VerificationType), v.IsVerified)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
+func (v *Verification) GetVerificationOnTypeID(db *gorm.DB) (int, error) {
+	q := `account_id = ? and  is_verified = ? and 
+	(
+		LOWER(verification_type) = 'passport' 
+		or LOWER(verification_type) = 'nin' 
+		or LOWER(verification_type) = 'national_id' 
+		or LOWER(verification_type) = 'nationalid' 
+		or LOWER(verification_type) = 'drivers_license' 
+		or LOWER(verification_type) = 'driverslicense' 
+	) 
+	`
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, q, v.AccountID, v.IsVerified)
 	if nilErr != nil {
 		return http.StatusBadRequest, nilErr
 	}
@@ -55,4 +93,13 @@ func (v *Verification) Delete(db *gorm.DB) error {
 		return fmt.Errorf("verification delete failed: %v", err.Error())
 	}
 	return nil
+}
+
+func (v *Verification) GetAllByAccountID(db *gorm.DB) ([]Verification, error) {
+	details := []Verification{}
+	err := postgresql.SelectAllFromDb(db, "asc", &details, "account_id = ? ", v.AccountID)
+	if err != nil {
+		return details, err
+	}
+	return details, nil
 }

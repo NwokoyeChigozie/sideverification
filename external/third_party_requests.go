@@ -38,6 +38,15 @@ func FindThirdPartyRequest(name string, headers map[string]string, data interfac
 			RequestData:  data,
 			DecodeMethod: JsonDecodeMethod,
 		}, nil
+	case "rave_resolve_bank_account":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v3/accounts/resolve", config.Rave.BaseUrl),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
 	default:
 		return RequestObj{}, fmt.Errorf("request not found")
 	}

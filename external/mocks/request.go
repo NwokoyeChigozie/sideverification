@@ -3,10 +3,11 @@ package mocks
 import (
 	"fmt"
 
+	"github.com/vesicash/verification-ms/external/mocks/appruve_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/auth_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/monnify_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/notification_mocks"
-	"github.com/vesicash/verification-ms/external/thirdparty/appruve"
+	"github.com/vesicash/verification-ms/external/mocks/rave_mocks"
 	"github.com/vesicash/verification-ms/utility"
 )
 
@@ -52,11 +53,13 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 	case "monnify_match_bvn_details":
 		return monnify_mocks.MonnifyMatchBvnDetails(er.Logger, data)
 	case "appruve_verify_id":
-		return appruve.AppruveVerifyID(er.Logger, data)
+		return appruve_mocks.AppruveVerifyID(er.Logger, data)
 	case "verification_failed_notification":
 		return notification_mocks.VerificationFailedNotification(er.Logger, data)
 	case "verification_successful_notification":
 		return notification_mocks.VerificationSuccessfulNotification(er.Logger, data)
+	case "rave_resolve_bank_account":
+		return rave_mocks.RaveResolveBankAccount(er.Logger, data)
 	default:
 		return nil, fmt.Errorf("request not found")
 	}

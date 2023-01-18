@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -197,16 +199,35 @@ func TestVerifyEmail(t *testing.T) {
 		t.Fatal(rr)
 	}
 
+	vCode := utility.GetRandomNumbersInRange(111111, 999999)
+	vToken, err := utility.ShaHash(utility.RandomString(20))
 	verification := models.Verification{AccountID: int(testUser.AccountID), VerificationType: verificationType}
 	verificationCode := models.VerificationCode{}
-	_, err = verification.GetVerificationByAccountIDAndType(db.Verification)
+	code, err := verification.GetVerificationByAccountIDAndType(db.Verification)
 	if err != nil {
-		t.Fatal(err)
-	} else {
-		verificationCode = models.VerificationCode{ID: verification.ID}
-		_, err := verificationCode.GetVerificationCodeByID(db.Verification)
+		if code == http.StatusInternalServerError {
+			t.Fatal(err)
+		}
+		verification.IsVerified = false
+		err := verification.CreateVerification(db.Verification)
 		if err != nil {
 			t.Fatal(err)
+		}
+	} else {
+		verificationCode = models.VerificationCode{ID: verification.ID}
+		code, err := verificationCode.GetVerificationCodeByID(db.Verification)
+		if err != nil {
+			if code == http.StatusInternalServerError {
+				t.Fatal(err)
+			}
+			verificationCode.AccountID = int(testUser.AccountID)
+			verificationCode.Code = vCode
+			verificationCode.Token = vToken
+			verificationCode.ExpiresAt = strconv.Itoa(int(time.Now().Add(15 * time.Minute).Unix()))
+			err := verificationCode.CreateVerificationCode(db.Verification)
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 	}
 
