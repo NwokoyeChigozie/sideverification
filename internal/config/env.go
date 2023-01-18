@@ -7,6 +7,7 @@ type Configuration struct {
 	Microservices Microservices
 	App           App
 	Monnify       Monnify
+	Appruve       Appruve
 }
 
 type BaseConfig struct {
@@ -82,6 +83,9 @@ type BaseConfig struct {
 	MONNIFY_DISBURSEMENT_PASSWORD     string `mapstructure:"MONNIFY_DISBURSEMENT_PASSWORD"`
 	MONNIFY_DISBURSEMENT_ACCOUNT      string `mapstructure:"MONNIFY_DISBURSEMENT_ACCOUNT"`
 	MONNIFY_DISBURSEMENT_ACCOUNT_NAME string `mapstructure:"MONNIFY_DISBURSEMENT_ACCOUNT_NAME"`
+
+	APPRUVE_TEST_ACCESS_TOKEN string `mapstructure:"APPRUVE_TEST_ACCESS_TOKEN"`
+	APPRUVE_BASE_URL          string `mapstructure:"APPRUVE_BASE_URL"`
 }
 
 func (config *BaseConfig) SetupConfigurationn() *Configuration {
@@ -164,6 +168,10 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			MonnifyDisbursementPassword:    config.MONNIFY_DISBURSEMENT_PASSWORD,
 			MonnifyDisbursementAccount:     config.MONNIFY_DISBURSEMENT_ACCOUNT,
 			MonnifyDisbursementAccountName: config.MONNIFY_DISBURSEMENT_ACCOUNT_NAME,
+		},
+		Appruve: Appruve{
+			AccessToken: config.APPRUVE_TEST_ACCESS_TOKEN,
+			BaseUrl:     config.APPRUVE_BASE_URL,
 		},
 	}
 }

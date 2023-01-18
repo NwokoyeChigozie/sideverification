@@ -29,6 +29,9 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/bvn/verify", verification.VerifyBVN)
+
+		verificationAuthUrl.POST("/id/upload", verification.UploadVerificationDoc)
+		verificationAuthUrl.POST("/id/verify", verification.VerifyIDCard)
 	}
 	return r
 }

@@ -29,7 +29,7 @@ type ValidateAuthorizationModel struct {
 	Data    ValidateAuthorizationDataModel `json:"data"`
 }
 type ValidateAuthorizationDataModel struct {
-	Status  bool                    `json:"status"`
-	Message string                  `json:"message"`
-	Data    *map[string]interface{} `json:"data"`
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
+	Data    User   `json:"data"`
 }

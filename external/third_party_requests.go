@@ -29,6 +29,15 @@ func FindThirdPartyRequest(name string, headers map[string]string, data interfac
 			RequestData:  data,
 			DecodeMethod: JsonDecodeMethod,
 		}, nil
+	case "appruve_verify_id":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v1/verifications", config.Appruve.BaseUrl),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
 	default:
 		return RequestObj{}, fmt.Errorf("request not found")
 	}

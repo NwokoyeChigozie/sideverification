@@ -32,12 +32,13 @@ func MonnifyMatchBvnDetails(logger *utility.Logger, idata interface{}) (bool, er
 
 	_, err := MonnifyLogin(logger, nil)
 	if err != nil {
-		logger.Info("monnify match bvn details", outBoundResponse, err)
+		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
 	}
 
 	data, ok := idata.(external_models.MonnifyMatchBvnDetailsReq)
 	if !ok {
+		logger.Info("monnify match bvn details", idata, "request data format error")
 		return false, fmt.Errorf("request data format error")
 	}
 

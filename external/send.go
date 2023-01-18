@@ -12,6 +12,11 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
+var (
+	ResponseCode int
+	ResponseBody string
+)
+
 func SendRequest(logger *utility.Logger, reqType, name string, headers map[string]string, data interface{}, response interface{}, urlPrefix ...string) error {
 	var (
 		reqObject = RequestObj{}
@@ -44,7 +49,6 @@ func SendRequest(logger *utility.Logger, reqType, name string, headers map[strin
 	req, err := http.NewRequest(reqObject.Method, reqObject.Path, buf)
 	if err != nil {
 		logger.Error("request creation error", name, err.Error())
-		fmt.Println(name, "4", err)
 		return err
 	}
 
@@ -52,9 +56,11 @@ func SendRequest(logger *utility.Logger, reqType, name string, headers map[strin
 		req.Header.Add(key, value)
 	}
 
+	logger.Error("request", name, reqObject.Path, reqObject.Method, reqObject.Headers)
+
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error("client do", name, err.Error())
 		return err
 	}
 
@@ -83,6 +89,7 @@ func SendRequest(logger *utility.Logger, reqType, name string, headers map[strin
 	}
 
 	defer res.Body.Close()
+	ResponseCode = res.StatusCode
 
 	if res.StatusCode == reqObject.SuccessCode {
 		return nil
