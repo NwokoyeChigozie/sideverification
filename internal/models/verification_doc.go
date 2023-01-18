@@ -32,6 +32,28 @@ func (v *VerificationDoc) GetVerificationDocByAccountIDAndType(db *gorm.DB) (int
 	return http.StatusOK, nil
 }
 
+func (v *VerificationDoc) GetVerificationDocOnTypeID(db *gorm.DB) (int, error) {
+	q := `account_id = ? and 
+	(
+		LOWER(type) = 'passport' 
+		or LOWER(type) = 'nin' 
+		or LOWER(type) = 'national_id' 
+		or LOWER(type) = 'nationalid' 
+		or LOWER(type) = 'drivers_license' 
+		or LOWER(type) = 'driverslicense' 
+	) 
+	`
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, q, v.AccountID)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
 func (v *VerificationDoc) CreateVerificationDoc(db *gorm.DB) error {
 	err := postgresql.CreateOneRecord(db, &v)
 	if err != nil {
