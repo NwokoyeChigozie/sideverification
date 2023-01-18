@@ -8,6 +8,7 @@ type Configuration struct {
 	App           App
 	Monnify       Monnify
 	Appruve       Appruve
+	Rave          Rave
 }
 
 type BaseConfig struct {
@@ -86,6 +87,10 @@ type BaseConfig struct {
 
 	APPRUVE_TEST_ACCESS_TOKEN string `mapstructure:"APPRUVE_TEST_ACCESS_TOKEN"`
 	APPRUVE_BASE_URL          string `mapstructure:"APPRUVE_BASE_URL"`
+
+	RAVE_PUBLIC_KEY string `mapstructure:"RAVE_PUBLIC_KEY"`
+	RAVE_SECRET_KEY string `mapstructure:"RAVE_SECRET_KEY"`
+	RAVE_BASE_URL   string `mapstructure:"RAVE_BASE_URL"`
 }
 
 func (config *BaseConfig) SetupConfigurationn() *Configuration {
@@ -172,6 +177,11 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 		Appruve: Appruve{
 			AccessToken: config.APPRUVE_TEST_ACCESS_TOKEN,
 			BaseUrl:     config.APPRUVE_BASE_URL,
+		},
+		Rave: Rave{
+			PublicKey: config.RAVE_PUBLIC_KEY,
+			SecretKey: config.RAVE_SECRET_KEY,
+			BaseUrl:   config.RAVE_BASE_URL,
 		},
 	}
 }

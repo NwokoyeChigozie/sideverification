@@ -6,6 +6,7 @@ import (
 	"github.com/vesicash/verification-ms/external/microservice/auth"
 	"github.com/vesicash/verification-ms/external/microservice/notification"
 	"github.com/vesicash/verification-ms/external/mocks"
+	rave "github.com/vesicash/verification-ms/external/thirdparty/Rave"
 	"github.com/vesicash/verification-ms/external/thirdparty/appruve"
 	"github.com/vesicash/verification-ms/external/thirdparty/monnify"
 	"github.com/vesicash/verification-ms/utility"
@@ -45,6 +46,8 @@ var (
 
 	VerificationFailedNotification     string = "verification_failed_notification"
 	VerificationSuccessfulNotification string = "verification_successful_notification"
+
+	RaveResolveBankAccount string = "rave_resolve_bank_account"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -90,6 +93,8 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 			return notification.VerificationFailedNotification(er.Logger, data)
 		case "verification_successful_notification":
 			return notification.VerificationSuccessfulNotification(er.Logger, data)
+		case "rave_resolve_bank_account":
+			return rave.RaveResolveBankAccount(er.Logger, data)
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

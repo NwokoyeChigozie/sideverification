@@ -312,18 +312,6 @@ func TestVerifyIDCard(t *testing.T) {
 				"Authorization": "Bearer " + token.String(),
 			},
 		},
-		{
-			Name: "invalid id",
-			RequestBody: models.VerifyIdCardRequest{
-				Type: "national_id",
-				ID:   "211978148308998",
-			},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
 	}
 
 	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))

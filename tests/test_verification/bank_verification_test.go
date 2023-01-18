@@ -14,7 +14,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/external/mocks/auth_mocks"
+	"github.com/vesicash/verification-ms/external/mocks/rave_mocks"
 	"github.com/vesicash/verification-ms/external/request"
+	"github.com/vesicash/verification-ms/internal/models"
 	"github.com/vesicash/verification-ms/pkg/controller/verification"
 	"github.com/vesicash/verification-ms/pkg/middleware"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
@@ -22,7 +24,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func TestBVNVerifiaction(t *testing.T) {
+func TestBankAccountVerification(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -48,6 +50,7 @@ func TestBVNVerifiaction(t *testing.T) {
 		Message: "authorized",
 		Data:    testUser,
 	}
+	rave_mocks.AccountName = "Account Name"
 
 	veri := verification.Controller{Db: db, Validator: validatorRef, Logger: logger, ExtReq: request.ExternalRequest{
 		Logger: logger,
@@ -55,35 +58,32 @@ func TestBVNVerifiaction(t *testing.T) {
 	}}
 	r := gin.Default()
 
-	type requestBody struct {
-		Bvn string `json:"bvn"`
-		Dob string `json:"dob"`
-	}
-
 	tests := []struct {
 		Name         string
-		RequestBody  requestBody
+		RequestBody  models.VerifyBankAccountRequest
 		ExpectedCode int
 		Headers      map[string]string
 		Message      string
 	}{
 		{
-			Name: "OK bvn verification",
-			RequestBody: requestBody{
-				Bvn: "12748377718",
-				Dob: "1995-09-01",
+			Name: "OK bank account verification",
+			RequestBody: models.VerifyBankAccountRequest{
+				BankCode:      "044",
+				AccountName:   "Account Name",
+				AccountNumber: "0983746574",
 			},
 			ExpectedCode: http.StatusOK,
-			Message:      "BVN verification completed.",
+			Message:      "success",
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
 				"Authorization": "Bearer " + token.String(),
 			},
 		},
 		{
-			Name: "no bvn",
-			RequestBody: requestBody{
-				Dob: "1995-09-01",
+			Name: "no bank code",
+			RequestBody: models.VerifyBankAccountRequest{
+				AccountName:   "Account Name",
+				AccountNumber: "0983746574",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -92,9 +92,22 @@ func TestBVNVerifiaction(t *testing.T) {
 			},
 		},
 		{
-			Name: "no dob",
-			RequestBody: requestBody{
-				Bvn: "12748377718",
+			Name: "no account name",
+			RequestBody: models.VerifyBankAccountRequest{
+				BankCode:      "044",
+				AccountNumber: "0983746574",
+			},
+			ExpectedCode: http.StatusBadRequest,
+			Headers: map[string]string{
+				"Content-Type":  "application/json",
+				"Authorization": "Bearer " + token.String(),
+			},
+		},
+		{
+			Name: "no account number",
+			RequestBody: models.VerifyBankAccountRequest{
+				BankCode:    "044",
+				AccountName: "Account Name",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -104,7 +117,7 @@ func TestBVNVerifiaction(t *testing.T) {
 		},
 		{
 			Name:         "no input",
-			RequestBody:  requestBody{},
+			RequestBody:  models.VerifyBankAccountRequest{},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
 				"Content-Type":  "application/json",
@@ -112,10 +125,11 @@ func TestBVNVerifiaction(t *testing.T) {
 			},
 		},
 		{
-			Name: "invalid date of birth",
-			RequestBody: requestBody{
-				Bvn: "12748377718",
-				Dob: "1995/09/01",
+			Name: "incorrect account name",
+			RequestBody: models.VerifyBankAccountRequest{
+				BankCode:      "044",
+				AccountName:   "Incorrect Name",
+				AccountNumber: "0983746574",
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -127,14 +141,15 @@ func TestBVNVerifiaction(t *testing.T) {
 
 	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
-		verificationAuthUrl.POST("/bvn/verify", veri.VerifyBVN)
+		verificationAuthUrl.POST("/bank_account/verify", veri.VerifyBankAccount)
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/bvn/verify"}
+			URI := url.URL{Path: "/v2/verification/bank_account/verify"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

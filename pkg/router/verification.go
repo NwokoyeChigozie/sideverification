@@ -32,6 +32,7 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 
 		verificationAuthUrl.POST("/id/upload", verification.UploadVerificationDoc)
 		verificationAuthUrl.POST("/id/verify", verification.VerifyIDCard)
+		verificationAuthUrl.POST("/bank_account/verify", verification.VerifyBankAccount)
 	}
 	return r
 }

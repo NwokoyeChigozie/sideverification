@@ -1,4 +1,4 @@
-package appruve
+package appruve_mocks
 
 import (
 	"fmt"
