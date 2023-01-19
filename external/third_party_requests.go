@@ -47,6 +47,15 @@ func FindThirdPartyRequest(name string, headers map[string]string, data interfac
 			RequestData:  data,
 			DecodeMethod: JsonDecodeMethod,
 		}, nil
+	case "ipstack_resolve_ip":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v", config.IPStack.BaseUrl),
+			Method:       "GET",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
 	default:
 		return RequestObj{}, fmt.Errorf("request not found")
 	}

@@ -9,6 +9,7 @@ type Configuration struct {
 	Monnify       Monnify
 	Appruve       Appruve
 	Rave          Rave
+	IPStack       IPStack
 }
 
 type BaseConfig struct {
@@ -91,6 +92,9 @@ type BaseConfig struct {
 	RAVE_PUBLIC_KEY string `mapstructure:"RAVE_PUBLIC_KEY"`
 	RAVE_SECRET_KEY string `mapstructure:"RAVE_SECRET_KEY"`
 	RAVE_BASE_URL   string `mapstructure:"RAVE_BASE_URL"`
+
+	IPSTACK_KEY      string `mapstructure:"IPSTACK_KEY"`
+	IPSTACK_BASE_URL string `mapstructure:"IPSTACK_BASE_URL"`
 }
 
 func (config *BaseConfig) SetupConfigurationn() *Configuration {
@@ -182,6 +186,11 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			PublicKey: config.RAVE_PUBLIC_KEY,
 			SecretKey: config.RAVE_SECRET_KEY,
 			BaseUrl:   config.RAVE_BASE_URL,
+		},
+
+		IPStack: IPStack{
+			Key:     config.IPSTACK_KEY,
+			BaseUrl: config.IPSTACK_BASE_URL,
 		},
 	}
 }

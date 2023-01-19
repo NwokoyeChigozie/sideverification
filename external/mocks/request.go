@@ -5,6 +5,7 @@ import (
 
 	"github.com/vesicash/verification-ms/external/mocks/appruve_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/auth_mocks"
+	"github.com/vesicash/verification-ms/external/mocks/ipstack_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/monnify_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/notification_mocks"
 	"github.com/vesicash/verification-ms/external/mocks/rave_mocks"
@@ -60,6 +61,20 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 		return notification_mocks.VerificationSuccessfulNotification(er.Logger, data)
 	case "rave_resolve_bank_account":
 		return rave_mocks.RaveResolveBankAccount(er.Logger, data)
+	case "ipstack_resolve_ip":
+		return ipstack_mocks.IpstackResolveIp(er.Logger, data)
+	case "get_authorize":
+		return auth_mocks.GetAuthorize(er.Logger, data)
+	case "create_authorize":
+		return auth_mocks.CreateAuthorize(er.Logger, data)
+	case "update_authorize":
+		return auth_mocks.UpdateAuthorize(er.Logger, data)
+	case "send_authorized_notification":
+		return notification_mocks.SendAuthorizedNotification(er.Logger, data)
+	case "send_authorization_notification":
+		return notification_mocks.SendAuthorizationNotification(er.Logger, data)
+	case "set_user_authorization_required_status":
+		return auth_mocks.SetUserAuthorizationRequiredStatus(er.Logger, data)
 	default:
 		return nil, fmt.Errorf("request not found")
 	}

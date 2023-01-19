@@ -26,3 +26,16 @@ func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, e
 	logger.Info("get user", User, "user found")
 	return *User, nil
 }
+
+func SetUserAuthorizationRequiredStatus(logger *utility.Logger, idata interface{}) (bool, error) {
+
+	data, ok := idata.(external_models.SetUserAuthorizationRequiredStatusModel)
+	if !ok {
+		logger.Info("set user authorization required status", idata, "request data format error")
+		return false, fmt.Errorf("request data format error")
+	}
+
+	logger.Info("set user authorization required status", data)
+
+	return true, nil
+}

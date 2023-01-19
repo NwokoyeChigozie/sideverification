@@ -174,6 +174,60 @@ func FindMicroserviceRequest(name string, headers map[string]string, data interf
 			RequestData:  data,
 			DecodeMethod: JsonDecodeMethod,
 		}, nil
+	case "get_authorize":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/get_authorize", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "create_authorize":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/create_authorize", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "update_authorize":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/update_authorize", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "send_authorized_notification":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/send_authorized", config.Microservices.Notification),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "send_authorization_notification":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/send_authorization", config.Microservices.Notification),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
+	case "set_user_authorization_required_status":
+		return RequestObj{
+			Path:         fmt.Sprintf("%v/v2/auth/set_authorization_required", config.Microservices.Auth),
+			Method:       "POST",
+			Headers:      headers,
+			SuccessCode:  200,
+			RequestData:  data,
+			DecodeMethod: JsonDecodeMethod,
+		}, nil
 	default:
 		return RequestObj{}, fmt.Errorf("request not found")
 	}
