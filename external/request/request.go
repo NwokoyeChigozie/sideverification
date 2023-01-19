@@ -8,6 +8,7 @@ import (
 	"github.com/vesicash/verification-ms/external/mocks"
 	rave "github.com/vesicash/verification-ms/external/thirdparty/Rave"
 	"github.com/vesicash/verification-ms/external/thirdparty/appruve"
+	"github.com/vesicash/verification-ms/external/thirdparty/ipstack"
 	"github.com/vesicash/verification-ms/external/thirdparty/monnify"
 	"github.com/vesicash/verification-ms/utility"
 )
@@ -48,6 +49,14 @@ var (
 	VerificationSuccessfulNotification string = "verification_successful_notification"
 
 	RaveResolveBankAccount string = "rave_resolve_bank_account"
+
+	IpstackResolveIp                   string = "ipstack_resolve_ip"
+	GetAuthorize                       string = "get_authorize"
+	CreateAuthorize                    string = "create_authorize"
+	UpdateAuthorize                    string = "update_authorize"
+	SendAuthorizedNotification         string = "send_authorized_notification"
+	SendAuthorizationNotification      string = "send_authorization_notification"
+	SetUserAuthorizationRequiredStatus string = "set_user_authorization_required_status"
 )
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
@@ -95,6 +104,20 @@ func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (in
 			return notification.VerificationSuccessfulNotification(er.Logger, data)
 		case "rave_resolve_bank_account":
 			return rave.RaveResolveBankAccount(er.Logger, data)
+		case "ipstack_resolve_ip":
+			return ipstack.IpstackResolveIp(er.Logger, data)
+		case "get_authorize":
+			return auth.GetAuthorize(er.Logger, data)
+		case "create_authorize":
+			return auth.CreateAuthorize(er.Logger, data)
+		case "update_authorize":
+			return auth.UpdateAuthorize(er.Logger, data)
+		case "send_authorized_notification":
+			return notification.SendAuthorizedNotification(er.Logger, data)
+		case "send_authorization_notification":
+			return notification.SendAuthorizationNotification(er.Logger, data)
+		case "set_user_authorization_required_status":
+			return auth.SetUserAuthorizationRequiredStatus(er.Logger, data)
 		default:
 			return nil, fmt.Errorf("request not found")
 		}

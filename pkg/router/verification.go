@@ -36,6 +36,8 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 
 		verificationAuthUrl.POST("/check", verification.CheckVerification)
 		verificationAuthUrl.GET("/fetch", verification.FetchUserVerifications)
+
+		verificationAuthUrl.POST("/authorize", verification.DoAuthorize)
 	}
 	return r
 }

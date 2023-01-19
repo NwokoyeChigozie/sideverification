@@ -39,3 +39,14 @@ type GetUserRequestModel struct {
 	PhoneNumber  string `json:"phone_number"`
 	Username     string `json:"username"`
 }
+type SetUserAuthorizationRequiredStatusModel struct {
+	AccountID uint `json:"account_id"`
+	Status    bool `json:"status"`
+}
+
+type SetUserAuthorizationRequiredStatusResponse struct {
+	Status  string `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Data    bool   `json:"data"`
+}
