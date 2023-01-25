@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetBankDetails(logger *utility.Logger, idata interface{}) (external_models.BankDetail, error) {
+func (r *RequestObj) GetBankDetails() (external_models.BankDetail, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetBankDetailResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.GetBankDetailModel)
@@ -28,7 +28,7 @@ func GetBankDetails(logger *utility.Logger, idata interface{}) (external_models.
 	}
 
 	logger.Info("get bank detail", data)
-	err := external.SendRequest(logger, "service", "get_bank_details", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("get bank detail", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err

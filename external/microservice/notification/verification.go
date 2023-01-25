@@ -3,22 +3,21 @@ package notification
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
-	"github.com/vesicash/verification-ms/external/microservice/auth"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func VerificationFailedNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+func (r *RequestObj) VerificationFailedNotification() (interface{}, error) {
 	var (
 		outBoundResponse map[string]interface{}
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 	data, ok := idata.(external_models.VerificationFailedModel)
 	if !ok {
 		logger.Info("verification failed notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
-	accessToken, err := auth.GetAccessToken(logger)
+	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
 		logger.Info("verification failed notification", outBoundResponse, err.Error())
 		return nil, err
@@ -31,7 +30,7 @@ func VerificationFailedNotification(logger *utility.Logger, idata interface{}) (
 	}
 
 	logger.Info("verification failed notification", data)
-	err = external.SendRequest(logger, "service", "verification_failed_notification", headers, data, &outBoundResponse)
+	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("verification failed notification", outBoundResponse, err.Error())
 		return nil, err
@@ -41,16 +40,18 @@ func VerificationFailedNotification(logger *utility.Logger, idata interface{}) (
 	return nil, nil
 }
 
-func VerificationSuccessfulNotification(logger *utility.Logger, idata interface{}) (interface{}, error) {
+func (r *RequestObj) VerificationSuccessfulNotification() (interface{}, error) {
 	var (
 		outBoundResponse map[string]interface{}
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 	data, ok := idata.(external_models.VerificationSuccessfulModel)
 	if !ok {
 		logger.Info("verification successful notification", idata, "request data format error")
 		return nil, fmt.Errorf("request data format error")
 	}
-	accessToken, err := auth.GetAccessToken(logger)
+	accessToken, err := r.getAccessTokenObject().GetAccessToken()
 	if err != nil {
 		logger.Info("verification successful notification", outBoundResponse, err.Error())
 		return nil, err
@@ -63,7 +64,7 @@ func VerificationSuccessfulNotification(logger *utility.Logger, idata interface{
 	}
 
 	logger.Info("verification successful notification", data)
-	err = external.SendRequest(logger, "service", "verification_successful_notification", headers, data, &outBoundResponse)
+	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("verification successful notification", outBoundResponse, err.Error())
 		return nil, err

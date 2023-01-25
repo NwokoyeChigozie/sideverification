@@ -13,9 +13,26 @@ import (
 )
 
 type ExternalRequest struct {
-	Logger *utility.Logger
-	Test   bool
+	Logger     *utility.Logger
+	Test       bool
+	RequestObj RequestObj
 }
+
+type RequestObj struct {
+	Name         string
+	Path         string
+	Method       string
+	Headers      map[string]string
+	SuccessCode  int
+	RequestData  interface{}
+	DecodeMethod string
+	Logger       *utility.Logger
+}
+
+var (
+	JsonDecodeMethod    string = "json"
+	PhpSerializerMethod string = "phpserializer"
+)
 
 func (er ExternalRequest) SendExternalRequest(name string, data interface{}) (interface{}, error) {
 	switch name {

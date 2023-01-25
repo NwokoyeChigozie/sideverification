@@ -3,17 +3,16 @@ package monnify
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func MonnifyLogin(logger *utility.Logger, idata interface{}) (string, error) {
+func (r *RequestObj) MonnifyLogin() (string, error) {
 
 	var (
 		base64Key        = config.GetConfig().Monnify.MonnifyBase64Key
 		outBoundResponse external_models.MonnifyLoginResponse
+		logger           = r.Logger
 	)
 
 	headers := map[string]string{
@@ -21,7 +20,7 @@ func MonnifyLogin(logger *utility.Logger, idata interface{}) (string, error) {
 		"Authorization": "Basic " + base64Key,
 	}
 
-	err := external.SendRequest(logger, "third_party", "monnify_login", headers, nil, &outBoundResponse)
+	err := r.getNewSendRequestObject(nil, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("monnify login", outBoundResponse, err.Error())
 		return "", err
@@ -31,13 +30,15 @@ func MonnifyLogin(logger *utility.Logger, idata interface{}) (string, error) {
 	return outBoundResponse.ResponseBody.AccessToken, nil
 }
 
-func MonnifyMatchBvnDetails(logger *utility.Logger, idata interface{}) (bool, error) {
+func (r *RequestObj) MonnifyMatchBvnDetails() (bool, error) {
 
 	var (
 		outBoundResponse external_models.MonnifyMatchBvnDetailsResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
-	token, err := MonnifyLogin(logger, nil)
+	token, err := r.getMonnifyLoginObject().MonnifyLogin()
 	if err != nil {
 		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err
@@ -55,7 +56,7 @@ func MonnifyMatchBvnDetails(logger *utility.Logger, idata interface{}) (bool, er
 	}
 
 	logger.Info("monnify match bvn details", data)
-	err = external.SendRequest(logger, "third_party", "monnify_match_bvn_details", headers, data, &outBoundResponse)
+	err = r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("monnify match bvn details", outBoundResponse, err.Error())
 		return false, err

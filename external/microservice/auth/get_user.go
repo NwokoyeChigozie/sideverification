@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, error) {
+func (r *RequestObj) GetUser() (external_models.User, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetUserModel
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.GetUserRequestModel)
@@ -28,7 +28,7 @@ func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, e
 	}
 
 	logger.Info("get user", data)
-	err := external.SendRequest(logger, "service", "get_user", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("get user", outBoundResponse, err.Error())
 		return outBoundResponse.Data.User, err
@@ -38,11 +38,13 @@ func GetUser(logger *utility.Logger, idata interface{}) (external_models.User, e
 	return outBoundResponse.Data.User, nil
 }
 
-func SetUserAuthorizationRequiredStatus(logger *utility.Logger, idata interface{}) (bool, error) {
+func (r *RequestObj) SetUserAuthorizationRequiredStatus() (bool, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.SetUserAuthorizationRequiredStatusResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.SetUserAuthorizationRequiredStatusModel)
@@ -57,7 +59,7 @@ func SetUserAuthorizationRequiredStatus(logger *utility.Logger, idata interface{
 	}
 
 	logger.Info("set user authorization required status", data)
-	err := external.SendRequest(logger, "service", "set_user_authorization_required_status", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("set user authorization required status", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err

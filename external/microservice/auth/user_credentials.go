@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetUserCredential(logger *utility.Logger, idata interface{}) (external_models.GetUserCredentialResponse, error) {
+func (r *RequestObj) GetUserCredential() (external_models.GetUserCredentialResponse, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetUserCredentialResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.GetUserCredentialModel)
@@ -28,7 +28,7 @@ func GetUserCredential(logger *utility.Logger, idata interface{}) (external_mode
 	}
 
 	logger.Info("get user credential", data)
-	err := external.SendRequest(logger, "service", "get_user_credential", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("get user credential", outBoundResponse, err.Error())
 		return outBoundResponse, err
@@ -38,11 +38,13 @@ func GetUserCredential(logger *utility.Logger, idata interface{}) (external_mode
 	return outBoundResponse, nil
 }
 
-func CreateUserCredential(logger *utility.Logger, idata interface{}) (external_models.GetUserCredentialResponse, error) {
+func (r *RequestObj) CreateUserCredential() (external_models.GetUserCredentialResponse, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetUserCredentialResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.CreateUserCredentialModel)
@@ -57,7 +59,7 @@ func CreateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 	}
 
 	logger.Info("create user credential", data)
-	err := external.SendRequest(logger, "service", "create_user_credential", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("create user credential", outBoundResponse, err.Error())
 		return outBoundResponse, err
@@ -67,11 +69,13 @@ func CreateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 	return outBoundResponse, nil
 }
 
-func UpdateUserCredential(logger *utility.Logger, idata interface{}) (external_models.GetUserCredentialResponse, error) {
+func (r *RequestObj) UpdateUserCredential() (external_models.GetUserCredentialResponse, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetUserCredentialResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.UpdateUserCredentialModel)
@@ -86,7 +90,7 @@ func UpdateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 	}
 
 	logger.Info("update user credential", data)
-	err := external.SendRequest(logger, "service", "update_user_credential", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("update user credential", outBoundResponse, err.Error())
 		return outBoundResponse, err

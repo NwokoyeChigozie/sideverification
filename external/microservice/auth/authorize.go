@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetAuthorize(logger *utility.Logger, idata interface{}) (external_models.GetAuthorizeResponse, error) {
+func (r *RequestObj) GetAuthorize() (external_models.GetAuthorizeResponse, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetAuthorizeResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.GetAuthorizeModel)
@@ -28,7 +28,7 @@ func GetAuthorize(logger *utility.Logger, idata interface{}) (external_models.Ge
 	}
 
 	logger.Info("get user credential", data)
-	err := external.SendRequest(logger, "service", "get_authorize", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("get authorize", outBoundResponse, err.Error())
 		return outBoundResponse, err
@@ -38,11 +38,13 @@ func GetAuthorize(logger *utility.Logger, idata interface{}) (external_models.Ge
 	return outBoundResponse, nil
 }
 
-func CreateAuthorize(logger *utility.Logger, idata interface{}) (external_models.GetAuthorizeResponse, error) {
+func (r *RequestObj) CreateAuthorize() (external_models.GetAuthorizeResponse, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetAuthorizeResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.CreateAuthorizeModel)
@@ -57,7 +59,7 @@ func CreateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 	}
 
 	logger.Info("create authorize", data)
-	err := external.SendRequest(logger, "service", "create_authorize", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("create authorize", outBoundResponse, err.Error())
 		return outBoundResponse, err
@@ -67,11 +69,13 @@ func CreateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 	return outBoundResponse, nil
 }
 
-func UpdateAuthorize(logger *utility.Logger, idata interface{}) (external_models.GetAuthorizeResponse, error) {
+func (r *RequestObj) UpdateAuthorize() (external_models.GetAuthorizeResponse, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetAuthorizeResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.UpdateAuthorizeModel)
@@ -86,7 +90,7 @@ func UpdateAuthorize(logger *utility.Logger, idata interface{}) (external_models
 	}
 
 	logger.Info("update authorize", data)
-	err := external.SendRequest(logger, "service", "update_authorize", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("update authorize", outBoundResponse, err.Error())
 		return outBoundResponse, err

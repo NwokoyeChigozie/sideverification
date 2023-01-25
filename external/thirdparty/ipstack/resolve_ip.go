@@ -3,17 +3,17 @@ package ipstack
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func IpstackResolveIp(logger *utility.Logger, idata interface{}) (external_models.IPStackResolveIPResponse, error) {
+func (r *RequestObj) IpstackResolveIp() (external_models.IPStackResolveIPResponse, error) {
 
 	var (
 		key              = config.GetConfig().IPStack.Key
 		outBoundResponse external_models.IPStackResolveIPResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	ip, ok := idata.(string)
@@ -25,7 +25,7 @@ func IpstackResolveIp(logger *utility.Logger, idata interface{}) (external_model
 	path := "/" + ip + "?access_key=" + key
 
 	logger.Info("ipstack resolve ip", ip)
-	err := external.SendRequest(logger, "third_party", "ipstack_resolve_ip", map[string]string{}, nil, &outBoundResponse, path)
+	err := r.getNewSendRequestObject(nil, map[string]string{}, path).SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("ipstack resolve ip", outBoundResponse, err.Error())
 		return outBoundResponse, err

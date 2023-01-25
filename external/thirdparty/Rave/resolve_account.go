@@ -3,16 +3,16 @@ package rave
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func RaveResolveBankAccount(logger *utility.Logger, idata interface{}) (string, error) {
+func (r *RequestObj) RaveResolveBankAccount() (string, error) {
 
 	var (
 		outBoundResponse external_models.ResolveAccountSuccessResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	headers := map[string]string{
@@ -26,7 +26,7 @@ func RaveResolveBankAccount(logger *utility.Logger, idata interface{}) (string, 
 		return "", fmt.Errorf("request data format error")
 	}
 
-	err := external.SendRequest(logger, "third_party", "rave_resolve_bank_account", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("rave resolve bank account", outBoundResponse, err.Error())
 		return "", err
