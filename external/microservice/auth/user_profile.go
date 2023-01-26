@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetUserProfile(logger *utility.Logger, idata interface{}) (external_models.UserProfile, error) {
+func (r *RequestObj) GetUserProfile() (external_models.UserProfile, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetUserProfileResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.GetUserProfileModel)
@@ -28,7 +28,7 @@ func GetUserProfile(logger *utility.Logger, idata interface{}) (external_models.
 	}
 
 	logger.Info("get user profile", data)
-	err := external.SendRequest(logger, "service", "get_user_profile", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("get user profile", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err

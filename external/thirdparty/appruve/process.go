@@ -8,14 +8,15 @@ import (
 	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func AppruveVerifyID(logger *utility.Logger, idata interface{}) (int, error) {
+func (r *RequestObj) AppruveVerifyID() (int, error) {
 
 	var (
 		token            = config.GetConfig().Appruve.AccessToken
 		outBoundResponse map[string]interface{}
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	headers := map[string]string{
@@ -41,7 +42,7 @@ func AppruveVerifyID(logger *utility.Logger, idata interface{}) (int, error) {
 	logger.Info("appruve_verify_id", data)
 	endpoint := "/" + strings.ToLower(fdata.CountryCode) + "/" + fdata.Endpoint
 
-	err := external.SendRequest(logger, "third_party", "appruve_verify_id", headers, data, &outBoundResponse, endpoint)
+	err := r.getNewSendRequestObject(data, headers, endpoint).SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("appruve_verify_id", outBoundResponse, err.Error())
 		code := http.StatusInternalServerError

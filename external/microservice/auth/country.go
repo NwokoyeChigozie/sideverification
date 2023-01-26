@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func GetCountry(logger *utility.Logger, idata interface{}) (external_models.Country, error) {
+func (r *RequestObj) GetCountry() (external_models.Country, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.GetCountryResponse
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.GetCountryModel)
@@ -28,7 +28,7 @@ func GetCountry(logger *utility.Logger, idata interface{}) (external_models.Coun
 	}
 
 	logger.Info("get country", data)
-	err := external.SendRequest(logger, "service", "get_country", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("get country", outBoundResponse, err.Error())
 		return outBoundResponse.Data, err

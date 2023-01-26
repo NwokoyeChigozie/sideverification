@@ -3,17 +3,17 @@ package auth
 import (
 	"fmt"
 
-	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
-	"github.com/vesicash/verification-ms/utility"
 )
 
-func ValidateOnAuth(logger *utility.Logger, idata interface{}) (bool, error) {
+func (r *RequestObj) ValidateOnAuth() (bool, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.ValidateOnDBReqModel
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.ValidateOnDBReq)
@@ -28,7 +28,7 @@ func ValidateOnAuth(logger *utility.Logger, idata interface{}) (bool, error) {
 	}
 
 	logger.Info("validate on auth", data)
-	err := external.SendRequest(logger, "service", "validate_on_auth", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("validate on auth", outBoundResponse, err.Error())
 		return false, err
@@ -38,11 +38,13 @@ func ValidateOnAuth(logger *utility.Logger, idata interface{}) (bool, error) {
 	return outBoundResponse.Data, nil
 }
 
-func ValidateAuthorization(logger *utility.Logger, idata interface{}) (external_models.ValidateAuthorizationDataModel, error) {
+func (r *RequestObj) ValidateAuthorization() (external_models.ValidateAuthorizationDataModel, error) {
 
 	var (
 		appKey           = config.GetConfig().App.Key
 		outBoundResponse external_models.ValidateAuthorizationModel
+		logger           = r.Logger
+		idata            = r.RequestData
 	)
 
 	data, ok := idata.(external_models.ValidateAuthorizationReq)
@@ -57,7 +59,7 @@ func ValidateAuthorization(logger *utility.Logger, idata interface{}) (external_
 	}
 
 	logger.Info("validate authorization", data)
-	err := external.SendRequest(logger, "service", "validate_authorization", headers, data, &outBoundResponse)
+	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("validate authorization", outBoundResponse, err.Error())
 		return external_models.ValidateAuthorizationDataModel{}, err

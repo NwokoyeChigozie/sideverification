@@ -24,7 +24,7 @@ type Verification struct {
 	Tries              int       `gorm:"column:tries; type:int; default: 0" json:"tries"`
 }
 
-type CheckVerificationServiceresponseModel struct {
+type CheckVerificationServiceResponseModel struct {
 	Verified        bool            `json:"verified"`
 	VerificationDoc VerificationDoc `json:"verification_doc"`
 }
