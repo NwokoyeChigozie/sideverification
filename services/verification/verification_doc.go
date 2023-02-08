@@ -42,7 +42,7 @@ func UploadVerificationDocService(extReq request.ExternalRequest, logger *utilit
 			return code, err
 		}
 
-		_, code, err = CreateUserCredential(int(user.AccountID), vType, data, extReq)
+		_, code, err = CreateUserCredential(int(user.AccountID), vType, data, "", extReq)
 		if err != nil {
 			return code, err
 		}
@@ -74,12 +74,13 @@ func UploadVerificationDocService(extReq request.ExternalRequest, logger *utilit
 
 }
 
-func CreateUserCredential(accountID int, vType, vData string, extReq request.ExternalRequest) (external_models.UsersCredential, int, error) {
+func CreateUserCredential(accountID int, vType, vData, bvn string, extReq request.ExternalRequest) (external_models.UsersCredential, int, error) {
 	userCredential := external_models.UsersCredential{}
 	usItf, err := extReq.SendExternalRequest(request.CreateUserCredential, external_models.CreateUserCredentialModel{
 		AccountID:          uint(accountID),
 		IdentificationType: vType,
 		IdentificationData: vData,
+		Bvn:                bvn,
 	})
 
 	if err != nil {
@@ -93,6 +94,33 @@ func CreateUserCredential(accountID int, vType, vData string, extReq request.Ext
 
 	if usC.Code != http.StatusOK {
 		return userCredential, http.StatusInternalServerError, fmt.Errorf("create user credential failed: %v", usC.Message)
+	}
+
+	return usC.Data, http.StatusOK, nil
+
+}
+
+func UpdateUserCredential(id, accountID int, vType, vData, bvn string, extReq request.ExternalRequest) (external_models.UsersCredential, int, error) {
+	userCredential := external_models.UsersCredential{}
+	usItf, err := extReq.SendExternalRequest(request.UpdateUserCredential, external_models.UpdateUserCredentialModel{
+		ID:                 uint(id),
+		AccountID:          uint(accountID),
+		IdentificationType: vType,
+		IdentificationData: vData,
+		Bvn:                bvn,
+	})
+
+	if err != nil {
+		return userCredential, http.StatusInternalServerError, err
+	}
+
+	usC, ok := usItf.(external_models.GetUserCredentialResponse)
+	if !ok {
+		return userCredential, http.StatusInternalServerError, fmt.Errorf("response data format error")
+	}
+
+	if usC.Code != http.StatusOK {
+		return userCredential, http.StatusInternalServerError, fmt.Errorf("update user credential failed: %v", usC.Message)
 	}
 
 	return usC.Data, http.StatusOK, nil
