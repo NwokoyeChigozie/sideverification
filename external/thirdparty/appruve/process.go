@@ -46,12 +46,14 @@ func (r *RequestObj) AppruveVerifyID() (int, error) {
 	if err != nil {
 		logger.Info("appruve_verify_id", outBoundResponse, err.Error())
 		code := http.StatusInternalServerError
-		if external.ResponseCode != 0 {
-			code = external.ResponseCode
+		if external.ResponseCode != nil {
+			if *external.ResponseCode != 0 {
+				code = *external.ResponseCode
+			}
 		}
 		return code, err
 	}
 	logger.Info("appruve_verify_id", outBoundResponse)
 
-	return external.ResponseCode, nil
+	return *external.ResponseCode, nil
 }

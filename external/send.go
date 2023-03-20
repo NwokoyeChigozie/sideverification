@@ -39,7 +39,7 @@ func GetNewSendRequestObject(logger *utility.Logger, name, path, method, urlPref
 }
 
 var (
-	ResponseCode int
+	ResponseCode *int
 	ResponseBody string
 )
 
@@ -112,7 +112,7 @@ func (r *SendRequestObject) SendRequest(response interface{}) error {
 	}
 
 	defer res.Body.Close()
-	ResponseCode = res.StatusCode
+	ResponseCode = &res.StatusCode
 
 	if res.StatusCode == r.SuccessCode {
 		return nil

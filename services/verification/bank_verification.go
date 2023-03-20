@@ -28,7 +28,7 @@ func VerifyBankAccountService(extReq request.ExternalRequest, Logger *utility.Lo
 	}
 
 	if accountName == "" {
-		return false, http.StatusInternalServerError, fmt.Errorf("error retrieving account name")
+		return false, http.StatusBadRequest, fmt.Errorf("could not retrieve account name")
 	}
 
 	accountName = strings.Join(strings.Fields(accountName), " ")
