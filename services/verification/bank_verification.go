@@ -28,14 +28,32 @@ func VerifyBankAccountService(extReq request.ExternalRequest, Logger *utility.Lo
 	}
 
 	if accountName == "" {
-		return false, http.StatusInternalServerError, fmt.Errorf("error retrieving account name")
+		return false, http.StatusBadRequest, fmt.Errorf("could not retrieve account name")
 	}
 
-	accountName = strings.Join(strings.Fields(accountName), " ")
-	req.AccountName = strings.Join(strings.Fields(req.AccountName), " ")
-	if !strings.EqualFold(accountName, req.AccountName) {
+	if !MatchNames(accountName, req.AccountName) {
 		return false, http.StatusBadRequest, fmt.Errorf("account Name does not tally with account number")
 	}
 
 	return true, http.StatusOK, nil
+}
+
+func MatchNames(name1, name2 string) bool {
+	name1Slice := strings.Fields(name1)
+	name2Slice := strings.Fields(name2)
+	matchCount := 0
+
+	if len(name1Slice) != len(name2Slice) {
+		return false
+	}
+
+	for _, n1 := range name1Slice {
+		for _, n2 := range name2Slice {
+			if strings.EqualFold(n1, n2) {
+				matchCount += 1
+			}
+		}
+	}
+
+	return matchCount == len(name1Slice)
 }
