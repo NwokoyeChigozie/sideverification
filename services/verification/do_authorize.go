@@ -75,12 +75,14 @@ func DoAuthorizeService(extReq request.ExternalRequest, logger *utility.Logger, 
 		return models.DoAuthorizeResponse{AccountId: int(user.AccountID), AuthorizedAt: authorize.AuthorizedAt}, "Authorized", http.StatusOK, nil
 	}
 
+	authorizationRequiredStatus := true
 	if score >= 2 {
 		updateAuthorize := external_models.UpdateAuthorizeModel{
 			ID:         authorize.ID,
 			Authorized: true,
 			Token:      token.String(),
 		}
+		authorizationRequiredStatus = false
 
 		aut, err := UpdateAuthorize(extReq, logger, updateAuthorize)
 		if err != nil {
@@ -88,18 +90,11 @@ func DoAuthorizeService(extReq request.ExternalRequest, logger *utility.Logger, 
 		}
 		authorize = aut
 
-		extReq.SendExternalRequest(request.SendAuthorizedNotification, external_models.AuthorizeNotificationRequest{
-			AccountID: int(user.AccountID),
-			Token:     token.String(),
-			Ip:        ip,
-			Location:  location,
-			Device:    device,
-		})
 	}
 
 	statusInterface, err := extReq.SendExternalRequest(request.SetUserAuthorizationRequiredStatus, external_models.SetUserAuthorizationRequiredStatusModel{
 		AccountID: user.AccountID,
-		Status:    true,
+		Status:    authorizationRequiredStatus,
 	})
 	if err != nil {
 		logger.Info(err.Error())
@@ -114,6 +109,10 @@ func DoAuthorizeService(extReq request.ExternalRequest, logger *utility.Logger, 
 
 	if !status {
 		return models.DoAuthorizeResponse{}, "error updating authorization required", http.StatusInternalServerError, fmt.Errorf("error updating authorization required")
+	}
+
+	if !authorizationRequiredStatus {
+		return models.DoAuthorizeResponse{AccountId: int(user.AccountID), AuthorizedAt: authorize.AuthorizedAt}, "Authorized", http.StatusOK, nil
 	}
 
 	extReq.SendExternalRequest(request.SendAuthorizationNotification, external_models.AuthorizeNotificationRequest{
