@@ -234,7 +234,7 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 		if code == http.StatusInternalServerError {
 			return code, err
 		}
-		return code, fmt.Errorf("verification not requested")
+		return code, fmt.Errorf("invalid code/token")
 	}
 
 	verification.IsVerified = true
