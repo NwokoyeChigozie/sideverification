@@ -186,15 +186,6 @@ func VerifyPhoneService(extReq request.ExternalRequest, logger *utility.Logger, 
 		return http.StatusInternalServerError, fmt.Errorf("user not found")
 	}
 
-	verification := models.Verification{AccountID: int(user.AccountID), VerificationType: verificationType}
-	code, err := verification.GetVerificationByAccountIDAndType(db.Verification)
-	if err != nil {
-		if code == http.StatusInternalServerError {
-			return code, err
-		}
-		return code, fmt.Errorf("verification not requested")
-	}
-
 	verificationCode := models.VerificationCode{AccountID: int(user.AccountID), Code: req.Code, Token: req.Token}
 	if req.Token != "" && req.Code == 0 {
 		code, err := verificationCode.GetVerificationCodeByAccountIDAndToken(db.Verification)
@@ -236,6 +227,15 @@ func VerifyPhoneService(extReq request.ExternalRequest, logger *utility.Logger, 
 			return http.StatusBadRequest, fmt.Errorf("expired code")
 		}
 
+	}
+
+	verification := models.Verification{AccountID: int(user.AccountID), VerificationType: verificationType, VerificationCodeId: int(verificationCode.ID)}
+	code, err := verification.GetVerificationByAccountIDAndTypeAndCodeID(db.Verification)
+	if err != nil {
+		if code == http.StatusInternalServerError {
+			return code, err
+		}
+		return code, fmt.Errorf("invalid code/token")
 	}
 
 	verification.IsVerified = true
