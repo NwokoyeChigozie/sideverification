@@ -48,6 +48,19 @@ func (v *Verification) GetVerificationByAccountIDAndType(db *gorm.DB) (int, erro
 	}
 	return http.StatusOK, nil
 }
+
+func (v *Verification) GetVerificationByAccountIDAndTypeAndCodeID(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, "account_id = ? and LOWER(verification_type) = ? and verification_code_id=?", v.AccountID, strings.ToLower(v.VerificationType), v.VerificationCodeId)
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
+
 func (v *Verification) GetVerificationByAccountIDAndTypeAndIsverified(db *gorm.DB) (int, error) {
 	err, nilErr := postgresql.SelectOneFromDb(db, &v, "account_id = ? and LOWER(verification_type) = ? and is_verified = ?", v.AccountID, strings.ToLower(v.VerificationType), v.IsVerified)
 	if nilErr != nil {
