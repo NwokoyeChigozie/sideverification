@@ -3,6 +3,7 @@ package rave
 import (
 	"fmt"
 
+	"github.com/vesicash/verification-ms/external"
 	"github.com/vesicash/verification-ms/external/external_models"
 	"github.com/vesicash/verification-ms/internal/config"
 )
@@ -29,6 +30,11 @@ func (r *RequestObj) RaveResolveBankAccount() (string, error) {
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
 		logger.Info("rave resolve bank account", outBoundResponse, err.Error())
+		if external.ResponseCode != nil {
+			if *external.ResponseCode == 400 {
+				return "", nil
+			}
+		}
 		return "", err
 	}
 	logger.Info("rave resolve bank account", outBoundResponse)
