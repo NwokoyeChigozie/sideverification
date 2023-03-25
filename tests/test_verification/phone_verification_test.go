@@ -111,7 +111,7 @@ func TestRequestPhoneVerifiaction(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/phone"}
+			URI := url.URL{Path: "/v2/phone"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
@@ -192,7 +192,7 @@ func TestVerifyPhone(t *testing.T) {
 
 	var b bytes.Buffer
 	json.NewEncoder(&b).Encode(reVReq)
-	req, err := http.NewRequest(http.MethodPost, "/v2/verification/phone", &b)
+	req, err := http.NewRequest(http.MethodPost, "/v2/phone", &b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -306,7 +306,7 @@ func TestVerifyPhone(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/phone/verify"}
+			URI := url.URL{Path: "/v2/phone/verify"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
