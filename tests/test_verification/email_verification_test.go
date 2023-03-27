@@ -94,7 +94,7 @@ func TestRequestEmailVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/email", veri.RequestEmailVerification)
 
@@ -168,7 +168,7 @@ func TestVerifyEmail(t *testing.T) {
 		Test:   true,
 	}}
 	r := gin.Default()
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/email", veri.RequestEmailVerification)
 		verificationTypeUrl.POST("/email/verify", veri.VerifyEmail)

@@ -22,7 +22,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func TestBVNVerifiaction(t *testing.T) {
+func TestBVNVerification(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -43,6 +43,14 @@ func TestBVNVerifiaction(t *testing.T) {
 		}
 	)
 
+	auth_mocks.User = &testUser
+	auth_mocks.UsersCredential = &external_models.UsersCredential{
+		ID:                 uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
+		AccountID:          int(testUser.AccountID),
+		Bvn:                "6736828697397",
+		IdentificationType: "bvn",
+		IdentificationData: "data",
+	}
 	auth_mocks.ValidateAuthorizationRes = &external_models.ValidateAuthorizationDataModel{
 		Status:  true,
 		Message: "authorized",
@@ -125,7 +133,7 @@ func TestBVNVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/bvn/verify", veri.VerifyBVN)
 	}

@@ -24,7 +24,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func TestRequestPhoneVerifiaction(t *testing.T) {
+func TestRequestPhoneVerification(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -101,7 +101,7 @@ func TestRequestPhoneVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/phone", veri.RequestPhoneVerification)
 
@@ -175,7 +175,7 @@ func TestVerifyPhone(t *testing.T) {
 		Test:   true,
 	}}
 	r := gin.Default()
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/phone", veri.RequestPhoneVerification)
 		verificationTypeUrl.POST("/phone/verify", veri.VerifyPhone)

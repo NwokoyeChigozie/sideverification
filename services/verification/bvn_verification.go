@@ -45,7 +45,7 @@ func VerifyBVNService(extReq request.ExternalRequest, Logger *utility.Logger, db
 		Bvn:         bvn,
 		DateOfBirth: dob,
 		Name:        getValidatedName(user.Lastname, user.Middlename, user.Firstname),
-		MobileNo:    getValidatedPhone(user.PhoneNumber),
+		MobileNo:    getValidatedPhone(user.PhoneNumber, extReq.Test),
 	}
 	status, err := extReq.SendExternalRequest(request.MonnifyMatchBvnDetails, bvnMatchReq)
 	aStatus := status.(bool)
@@ -80,12 +80,12 @@ func VerifyBVNService(extReq request.ExternalRequest, Logger *utility.Logger, db
 
 }
 
-func getValidatedPhone(phoneNumber string) string {
+func getValidatedPhone(phoneNumber string, isTest bool) string {
 	if phoneNumber == "" {
 		phoneNumber = fmt.Sprintf("0%v", utility.GetRandomNumbersInRange(7000000000, 9099999999))
 	}
 
-	phoneNumber, status := utility.PhoneValid(phoneNumber)
+	phoneNumber, status := utility.PhoneValid(phoneNumber, isTest)
 	if !status {
 		phoneNumber = fmt.Sprintf("0%v", utility.GetRandomNumbersInRange(7000000000, 9099999999))
 	}
