@@ -134,7 +134,7 @@ func RequestPhoneVerificationService(extReq request.ExternalRequest, logger *uti
 
 	var phone string
 	if req.PhoneNumber != "" {
-		ph, status := utility.PhoneValid(req.PhoneNumber)
+		ph, status := utility.PhoneValid(req.PhoneNumber, extReq.Test)
 		if !status {
 			return http.StatusBadRequest, fmt.Errorf("invalid phone number")
 		}

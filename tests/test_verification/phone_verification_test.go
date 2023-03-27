@@ -24,7 +24,7 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func TestRequestPhoneVerifiaction(t *testing.T) {
+func TestRequestPhoneVerification(t *testing.T) {
 	logger := tst.Setup()
 	gin.SetMode(gin.TestMode)
 	validatorRef := validator.New()
@@ -101,7 +101,7 @@ func TestRequestPhoneVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/phone", veri.RequestPhoneVerification)
 
@@ -111,7 +111,7 @@ func TestRequestPhoneVerifiaction(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/phone"}
+			URI := url.URL{Path: "/v2/phone"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
@@ -175,7 +175,7 @@ func TestVerifyPhone(t *testing.T) {
 		Test:   true,
 	}}
 	r := gin.Default()
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/phone", veri.RequestPhoneVerification)
 		verificationTypeUrl.POST("/phone/verify", veri.VerifyPhone)
@@ -192,7 +192,7 @@ func TestVerifyPhone(t *testing.T) {
 
 	var b bytes.Buffer
 	json.NewEncoder(&b).Encode(reVReq)
-	req, err := http.NewRequest(http.MethodPost, "/v2/verification/phone", &b)
+	req, err := http.NewRequest(http.MethodPost, "/v2/phone", &b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -306,7 +306,7 @@ func TestVerifyPhone(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/phone/verify"}
+			URI := url.URL{Path: "/v2/phone/verify"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

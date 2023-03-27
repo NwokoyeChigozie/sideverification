@@ -16,7 +16,7 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 	extReq := request.ExternalRequest{Logger: logger, Test: false}
 	verification := verification.Controller{Db: db, Validator: validator, Logger: logger, ExtReq: extReq}
 
-	verificationUrl := r.Group(fmt.Sprintf("%v/verification", ApiVersion))
+	verificationUrl := r.Group(fmt.Sprintf("%v", ApiVersion))
 	{
 		verificationUrl.POST("/email", verification.RequestEmailVerification)
 		verificationUrl.POST("/email/verify", verification.VerifyEmail)
@@ -26,7 +26,7 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", ApiVersion), middleware.Authorize(db, extReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/bvn/verify", verification.VerifyBVN)
 

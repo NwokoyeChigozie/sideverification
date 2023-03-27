@@ -139,7 +139,7 @@ func TestBankAccountVerification(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/bank_account/verify", veri.VerifyBankAccount)
 	}
@@ -149,7 +149,7 @@ func TestBankAccountVerification(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/bank_account/verify"}
+			URI := url.URL{Path: "/v2/bank_account/verify"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

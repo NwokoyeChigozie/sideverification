@@ -30,9 +30,9 @@ func GetUserCredential(logger *utility.Logger, idata interface{}) (external_mode
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
-			Message: "user not provided",
+			Message: "user credential not provided",
 			Data:    external_models.UsersCredential{},
-		}, fmt.Errorf("user not provided")
+		}, fmt.Errorf("user credential not provided")
 	}
 
 	logger.Info("get user credential", UsersCredential, "user credential found")
@@ -62,9 +62,9 @@ func CreateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
-			Message: "user not provided",
+			Message: "user credential not provided",
 			Data:    external_models.UsersCredential{},
-		}, fmt.Errorf("user not provided")
+		}, fmt.Errorf("user credential not provided")
 	}
 
 	logger.Info("create user credential", UsersCredential, "user credential found")
@@ -95,9 +95,9 @@ func UpdateUserCredential(logger *utility.Logger, idata interface{}) (external_m
 		return external_models.GetUserCredentialResponse{
 			Status:  "error",
 			Code:    http.StatusBadRequest,
-			Message: "user not provided",
+			Message: "user credential not provided",
 			Data:    external_models.UsersCredential{},
-		}, fmt.Errorf("user not provided")
+		}, fmt.Errorf("user credential not provided")
 	}
 
 	logger.Info("update user credential", UsersCredential, "user credential found")

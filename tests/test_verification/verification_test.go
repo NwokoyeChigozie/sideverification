@@ -74,7 +74,7 @@ func TestFetchVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.GET("/fetch", veri.FetchUserVerifications)
 	}
@@ -83,7 +83,7 @@ func TestFetchVerifiaction(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/fetch"}
+			URI := url.URL{Path: "/v2/fetch"}
 
 			req, err := http.NewRequest(http.MethodGet, URI.String(), &b)
 			if err != nil {
@@ -208,7 +208,7 @@ func TestCheckVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/check", veri.CheckVerification)
 	}
@@ -217,7 +217,7 @@ func TestCheckVerifiaction(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/check"}
+			URI := url.URL{Path: "/v2/check"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

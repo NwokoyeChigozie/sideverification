@@ -132,7 +132,7 @@ func TestUploadVerificationDoc(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/id/upload", veri.UploadVerificationDoc)
 	}
@@ -142,7 +142,7 @@ func TestUploadVerificationDoc(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/id/upload"}
+			URI := url.URL{Path: "/v2/id/upload"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
@@ -314,7 +314,7 @@ func TestVerifyIDCard(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/id/verify", veri.VerifyIDCard)
 	}
@@ -324,7 +324,7 @@ func TestVerifyIDCard(t *testing.T) {
 
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/id/verify"}
+			URI := url.URL{Path: "/v2/id/verify"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

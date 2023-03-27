@@ -123,7 +123,7 @@ func TestDoAuthorize(t *testing.T) {
 		},
 	}
 
-	verificationAuthUrl := r.Group(fmt.Sprintf("%v/verification", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
+	verificationAuthUrl := r.Group(fmt.Sprintf("%v", "v2"), middleware.Authorize(db, veri.ExtReq, middleware.AuthType))
 	{
 		verificationAuthUrl.POST("/authorize", veri.DoAuthorize)
 	}
@@ -132,7 +132,7 @@ func TestDoAuthorize(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/authorize"}
+			URI := url.URL{Path: "/v2/authorize"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {

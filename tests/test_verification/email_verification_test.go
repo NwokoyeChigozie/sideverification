@@ -94,7 +94,7 @@ func TestRequestEmailVerifiaction(t *testing.T) {
 		},
 	}
 
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/email", veri.RequestEmailVerification)
 
@@ -104,7 +104,7 @@ func TestRequestEmailVerifiaction(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/email"}
+			URI := url.URL{Path: "/v2/email"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
@@ -168,7 +168,7 @@ func TestVerifyEmail(t *testing.T) {
 		Test:   true,
 	}}
 	r := gin.Default()
-	verificationTypeUrl := r.Group(fmt.Sprintf("%v/verification", "v2"))
+	verificationTypeUrl := r.Group(fmt.Sprintf("%v", "v2"))
 	{
 		verificationTypeUrl.POST("/email", veri.RequestEmailVerification)
 		verificationTypeUrl.POST("/email/verify", veri.VerifyEmail)
@@ -185,7 +185,7 @@ func TestVerifyEmail(t *testing.T) {
 
 	var b bytes.Buffer
 	json.NewEncoder(&b).Encode(reVReq)
-	req, err := http.NewRequest(http.MethodPost, "/v2/verification/email", &b)
+	req, err := http.NewRequest(http.MethodPost, "/v2/email", &b)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -321,7 +321,7 @@ func TestVerifyEmail(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
-			URI := url.URL{Path: "/v2/verification/email/verify"}
+			URI := url.URL{Path: "/v2/email/verify"}
 
 			req, err := http.NewRequest(http.MethodPost, URI.String(), &b)
 			if err != nil {
