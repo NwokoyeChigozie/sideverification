@@ -43,14 +43,14 @@ func TestBVNVerification(t *testing.T) {
 		}
 	)
 
-	auth_mocks.User = &testUser
-	auth_mocks.UsersCredential = &external_models.UsersCredential{
-		ID:                 uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
-		AccountID:          int(testUser.AccountID),
-		Bvn:                "6736828697397",
-		IdentificationType: "bvn",
-		IdentificationData: "data",
-	}
+	// auth_mocks.User = &testUser
+	// auth_mocks.UsersCredential = &external_models.UsersCredential{
+	// 	ID:                 uint(utility.GetRandomNumbersInRange(1000000000, 9999999999)),
+	// 	AccountID:          int(testUser.AccountID),
+	// 	Bvn:                "6736828697397",
+	// 	IdentificationType: "bvn",
+	// 	IdentificationData: "data",
+	// }
 	auth_mocks.ValidateAuthorizationRes = &external_models.ValidateAuthorizationDataModel{
 		Status:  true,
 		Message: "authorized",
