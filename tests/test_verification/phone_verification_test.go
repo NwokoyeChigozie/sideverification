@@ -81,13 +81,12 @@ func TestRequestPhoneVerification(t *testing.T) {
 			},
 		},
 		{
-			Name: "OK phone verification with both account_id and phone number",
+			Name: "both account_id and phone number",
 			RequestBody: models.RequestPhoneVerificationRequest{
 				AccountID:   int(accountID),
 				PhoneNumber: testUser.PhoneNumber,
 			},
-			ExpectedCode: http.StatusOK,
-			Message:      "Phone number verification requested",
+			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
@@ -186,8 +185,7 @@ func TestVerifyPhone(t *testing.T) {
 		AccountID    int    `json:"account_id"`
 		EmailAddress string `json:"email_address"`
 	}{
-		AccountID:    int(testUser.AccountID),
-		EmailAddress: testUser.EmailAddress,
+		AccountID: int(testUser.AccountID),
 	}
 
 	var b bytes.Buffer

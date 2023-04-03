@@ -86,6 +86,17 @@ func TestRequestEmailVerifiaction(t *testing.T) {
 			},
 		},
 		{
+			Name: "both account id and email address",
+			RequestBody: requestBody{
+				AccountID:    int(accountID),
+				EmailAddress: testUser.EmailAddress,
+			},
+			ExpectedCode: http.StatusBadRequest,
+			Headers: map[string]string{
+				"Content-Type": "application/json",
+			},
+		},
+		{
 			Name:         "no input",
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
@@ -179,7 +190,6 @@ func TestVerifyEmail(t *testing.T) {
 		AccountID    int    `json:"account_id"`
 		EmailAddress string `json:"email_address"`
 	}{
-		AccountID:    int(testUser.AccountID),
 		EmailAddress: testUser.EmailAddress,
 	}
 
