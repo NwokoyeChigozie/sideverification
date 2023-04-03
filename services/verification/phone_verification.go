@@ -20,7 +20,11 @@ func RequestPhoneVerificationService(extReq request.ExternalRequest, logger *uti
 	)
 
 	if req.AccountID == 0 && req.PhoneNumber == "" {
-		return http.StatusBadRequest, fmt.Errorf("enter either account id or/and phone number")
+		return http.StatusBadRequest, fmt.Errorf("enter either account id or phone number")
+	}
+
+	if req.AccountID != 0 && req.PhoneNumber != "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either account id or phone number")
 	}
 
 	if req.PhoneNumber != "" {
@@ -102,7 +106,7 @@ func RequestPhoneVerificationService(extReq request.ExternalRequest, logger *uti
 			return http.StatusInternalServerError, err
 		}
 
-		verificationCode = models.VerificationCode{ID: verification.ID}
+		verificationCode = models.VerificationCode{ID: uint(verification.VerificationCodeId)}
 		code, err := verificationCode.GetVerificationCodeByID(db.Verification)
 		if err != nil {
 			if code == http.StatusInternalServerError {
@@ -130,6 +134,12 @@ func RequestPhoneVerificationService(extReq request.ExternalRequest, logger *uti
 			return http.StatusInternalServerError, err
 		}
 
+	}
+
+	verification.VerificationCodeId = int(verificationCode.ID)
+	err = verification.UpdateAllFields(db.Verification)
+	if err != nil {
+		return http.StatusInternalServerError, err
 	}
 
 	var phone string
@@ -244,6 +254,7 @@ func VerifyPhoneService(extReq request.ExternalRequest, logger *utility.Logger, 
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	verificationCode.Delete(db.Verification)
 
 	return http.StatusOK, nil
 }
