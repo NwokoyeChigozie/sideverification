@@ -21,6 +21,9 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 	if accountID == 0 && emailAddress == "" {
 		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
 	}
+	if accountID != 0 && emailAddress != "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
+	}
 
 	if accountID != 0 {
 		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(accountID)})
@@ -97,7 +100,7 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 			return http.StatusInternalServerError, err
 		}
 
-		verificationCode = models.VerificationCode{ID: verification.ID}
+		verificationCode = models.VerificationCode{ID: uint(verification.VerificationCodeId)}
 		code, err := verificationCode.GetVerificationCodeByID(db.Verification)
 		if err != nil {
 			if code == http.StatusInternalServerError {
@@ -127,6 +130,12 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 
 	}
 
+	verification.VerificationCodeId = int(verificationCode.ID)
+	err = verification.UpdateAllFields(db.Verification)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+
 	extReq.SendExternalRequest(request.SendVerificationEmail, external_models.EmailNotificationRequest{
 		EmailAddress: user.EmailAddress,
 		AccountId:    user.AccountID,
@@ -143,6 +152,9 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 		verificationType = "email"
 	)
 	if req.AccountID == 0 && req.EmailAddress == "" {
+		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
+	}
+	if req.AccountID != 0 && req.EmailAddress != "" {
 		return http.StatusBadRequest, fmt.Errorf("enter either account id or email address")
 	}
 	if req.Code == 0 && req.Token == "" {
@@ -205,9 +217,7 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 			return http.StatusBadRequest, fmt.Errorf("expired token")
 		}
 
-	}
-
-	if req.Code != 0 && req.Token == "" {
+	} else if req.Code != 0 && req.Token == "" {
 		code, err := verificationCode.GetVerificationCodeByAccountIDAndCode(db.Verification)
 		if err != nil {
 			if code == http.StatusInternalServerError {
@@ -226,6 +236,8 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 			return http.StatusBadRequest, fmt.Errorf("expired code")
 		}
 
+	} else {
+		return http.StatusBadRequest, fmt.Errorf("neither code nor token is provided")
 	}
 
 	verification := models.Verification{AccountID: int(user.AccountID), VerificationType: verificationType, VerificationCodeId: int(verificationCode.ID)}
@@ -243,6 +255,7 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	verificationCode.Delete(db.Verification)
 
 	extReq.SendExternalRequest(request.SendWelcomeEmail, external_models.AccountIDRequestModel{
 		AccountId: user.AccountID,

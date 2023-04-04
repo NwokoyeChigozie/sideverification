@@ -67,3 +67,11 @@ func (v *VerificationCode) UpdateAllFields(db *gorm.DB) error {
 	_, err := postgresql.SaveAllFields(db, &v)
 	return err
 }
+
+func (v *VerificationCode) Delete(db *gorm.DB) error {
+	err := postgresql.DeleteRecordFromDb(db, &v)
+	if err != nil {
+		return fmt.Errorf("verification code delete failed: %v", err.Error())
+	}
+	return nil
+}
