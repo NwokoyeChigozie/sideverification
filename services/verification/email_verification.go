@@ -255,6 +255,7 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	verificationCode.Delete(db.Verification)
 
 	extReq.SendExternalRequest(request.SendWelcomeEmail, external_models.AccountIDRequestModel{
 		AccountId: user.AccountID,

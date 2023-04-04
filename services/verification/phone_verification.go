@@ -254,6 +254,7 @@ func VerifyPhoneService(extReq request.ExternalRequest, logger *utility.Logger, 
 	if err != nil {
 		return http.StatusInternalServerError, err
 	}
+	verificationCode.Delete(db.Verification)
 
 	return http.StatusOK, nil
 }

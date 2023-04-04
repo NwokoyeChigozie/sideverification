@@ -181,100 +181,53 @@ func TestVerifyPhone(t *testing.T) {
 
 	}
 
-	reVReq := struct {
-		AccountID    int    `json:"account_id"`
-		EmailAddress string `json:"email_address"`
-	}{
-		AccountID: int(testUser.AccountID),
-	}
-
-	var b bytes.Buffer
-	json.NewEncoder(&b).Encode(reVReq)
-	req, err := http.NewRequest(http.MethodPost, "/v2/phone", &b)
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	rr := httptest.NewRecorder()
-	r.ServeHTTP(rr, req)
-	rrdata := tst.ParseResponse(rr)
-	fmt.Println(rr.Code, rrdata)
-	if rr.Code != 200 {
-		t.Fatal(rr)
-	}
-
-	vCode := utility.GetRandomNumbersInRange(111111, 999999)
-	vToken, err := utility.ShaHash(utility.RandomString(20))
-	verification := models.Verification{AccountID: int(testUser.AccountID), VerificationType: verificationType}
-	verificationCode := models.VerificationCode{}
-	code, err := verification.GetVerificationByAccountIDAndType(db.Verification)
-	if err != nil {
-		if code == http.StatusInternalServerError {
-			t.Fatal(err)
-		}
-		verification.IsVerified = false
-		err := verification.CreateVerification(db.Verification)
-		if err != nil {
-			t.Fatal(err)
-		}
-	} else {
-		verificationCode = models.VerificationCode{ID: verification.ID}
-		code, err := verificationCode.GetVerificationCodeByID(db.Verification)
-		if err != nil {
-			if code == http.StatusInternalServerError {
-				t.Fatal(err)
-			}
-			verificationCode.AccountID = int(testUser.AccountID)
-			verificationCode.Code = vCode
-			verificationCode.Token = vToken
-			verificationCode.ExpiresAt = strconv.Itoa(int(time.Now().Add(15 * time.Minute).Unix()))
-			err := verificationCode.CreateVerificationCode(db.Verification)
-			if err != nil {
-				t.Fatal(err)
-			}
-		}
-	}
-
 	tests := []struct {
 		Name         string
 		RequestBody  models.VerifyPhoneRequest
 		ExpectedCode int
 		Headers      map[string]string
 		Message      string
+		Create       bool
+		Code         bool
+		Token        bool
 	}{
 		{
 			Name: "OK account_id and code",
 			RequestBody: models.VerifyPhoneRequest{
 				AccountID: int(accountID),
-				Code:      verificationCode.Code,
 			},
 			ExpectedCode: http.StatusOK,
 			Message:      "Phone Number Verified",
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
+			Create: true,
+			Code:   true,
+			Token:  false,
 		}, {
 			Name: "OK account_id and token",
 			RequestBody: models.VerifyPhoneRequest{
 				AccountID: int(accountID),
-				Token:     verificationCode.Token,
 			},
 			ExpectedCode: http.StatusOK,
 			Message:      "Phone Number Verified",
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
+			Create: true,
+			Code:   false,
+			Token:  true,
 		},
 		{
-			Name: "no account id",
-			RequestBody: models.VerifyPhoneRequest{
-				Token: verificationCode.Token,
-			},
+			Name:         "no account id",
+			RequestBody:  models.VerifyPhoneRequest{},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
+			Create: false,
+			Code:   false,
+			Token:  true,
 		},
 		{
 			Name: "no code and email",
@@ -285,23 +238,62 @@ func TestVerifyPhone(t *testing.T) {
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
+			Create: false,
+			Code:   false,
+			Token:  false,
 		},
 		{
 			Name: "both token and code",
 			RequestBody: models.VerifyPhoneRequest{
 				AccountID: int(accountID),
-				Code:      verificationCode.Code,
-				Token:     verificationCode.Token,
 			},
 			ExpectedCode: http.StatusBadRequest,
 			Headers: map[string]string{
 				"Content-Type": "application/json",
 			},
+			Create: false,
+			Code:   true,
+			Token:  true,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
+			verification := models.Verification{AccountID: int(testUser.AccountID), VerificationType: verificationType}
+			verificationCode := models.VerificationCode{}
+
+			if test.Create {
+				vCode := utility.GetRandomNumbersInRange(111111, 999999)
+				vToken, _ := utility.ShaHash(utility.RandomString(20))
+				verificationCode = models.VerificationCode{
+					AccountID: int(testUser.AccountID),
+					Code:      vCode,
+					Token:     vToken,
+					ExpiresAt: strconv.Itoa(int(time.Now().Add(15 * time.Minute).Unix())),
+				}
+				err := verificationCode.CreateVerificationCode(db.Verification)
+				if err != nil {
+					t.Fatal(err)
+				}
+				verification = models.Verification{
+					AccountID:          verificationCode.AccountID,
+					VerificationCodeId: int(verificationCode.ID),
+					VerificationType:   verificationType,
+					IsVerified:         false,
+				}
+				err = verification.CreateVerification(db.Verification)
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+
+			if test.Code {
+				test.RequestBody.Code = verificationCode.Code
+			}
+			if test.Token {
+				test.RequestBody.Token = verificationCode.Token
+			}
+
 			var b bytes.Buffer
 			json.NewEncoder(&b).Encode(test.RequestBody)
 			URI := url.URL{Path: "/v2/phone/verify"}
