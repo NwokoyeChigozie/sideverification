@@ -39,6 +39,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			DateOfBirth:  v.UserProfile.Dob,
 		}
 	)
+	fmt.Println(fmt.Sprintf("%v, new: %v", appruveReq, *v))
 
 	statusCode, _ := appruveReq.Process(*v)
 	if statusCode != http.StatusOK {
