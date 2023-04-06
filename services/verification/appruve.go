@@ -53,6 +53,7 @@ func (a *AppruveReq) Process(verificationObj VerifcationJobModel) (int, string) 
 	})
 
 	if err != nil {
+		verificationObj.ExtReq.Logger.Error("appruve error, ", err.Error())
 		return statusInterface.(int), err.Error()
 	}
 
