@@ -43,8 +43,6 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 	// fmt.Println(fmt.Sprintf("%v, new: %v", appruveReq, *v))
 
 	statusCode, _ := appruveReq.Process(*v)
-	fmt.Println("Status code", statusCode)
-	statusCode = 500
 	if statusCode != http.StatusOK {
 		if statusCode >= 500 && statusCode <= 599 {
 			code, err := saveVerificationLogs(*v, appruveReq)
@@ -133,7 +131,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		}
 	}
 
-	if verificationLog.Attempts >= 10 {
+	if verificationLog.Attempts >= 6 {
 		v.ExtReq.SendExternalRequest(request.VerificationFailedNotification, external_models.VerificationFailedModel{
 			AccountID: v.User.AccountID,
 			Type:      v.Request.Type,
