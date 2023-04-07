@@ -33,7 +33,9 @@ func main() {
 	rM := router.SetupMetrics(&configuration.App)
 
 	// cronjobs
-	go cronjobs.SetupCronJobs(request.ExternalRequest{Logger: logger}, db, configuration.Server.CronJobs)
+	if configuration.Server.RunCronJobs {
+		go cronjobs.SetupCronJobs(request.ExternalRequest{Logger: logger}, db, configuration.Server.CronJobs)
+	}
 
 	go func(logger *utility.Logger, metricsPort string) {
 		utility.LogAndPrint(logger, fmt.Sprintf("Metric Server is starting at 127.0.0.1:%s", metricsPort))
