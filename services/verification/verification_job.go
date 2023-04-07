@@ -1,6 +1,7 @@
 package verification
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -39,9 +40,11 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			DateOfBirth:  v.UserProfile.Dob,
 		}
 	)
-	fmt.Println(fmt.Sprintf("%v, new: %v", appruveReq, *v))
+	// fmt.Println(fmt.Sprintf("%v, new: %v", appruveReq, *v))
 
 	statusCode, _ := appruveReq.Process(*v)
+	fmt.Println("Status code", statusCode)
+	statusCode = 500
 	if statusCode != http.StatusOK {
 		if statusCode >= 500 && statusCode <= 599 {
 			code, err := saveVerificationLogs(*v, appruveReq)
@@ -89,7 +92,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			Status:    "failed",
 			Type:      v.Request.Type,
 		}
-		_, err = verificationLog.GetVerificationLogByAccountID(v.Db.Verification)
+		_, err = verificationLog.GetVerificationLogByAccountIDAndType(v.Db.Verification)
 		if err == nil {
 			verificationLog.Status = "success"
 			err := verificationLog.UpdateAllFields(v.Db.Verification)
@@ -110,18 +113,19 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		Status:    "failed",
 		Type:      v.Request.Type,
 	}
-	code, err := verificationLog.GetVerificationLogByAccountID(v.Db.Verification)
+	code, err := verificationLog.GetVerificationLogByAccountIDAndType(v.Db.Verification)
 	if err != nil {
 		if code == http.StatusInternalServerError {
 			v.ExtReq.Logger.Info(strconv.Itoa(code), err.Error())
 			return code, err
 		}
 
+		jsonByte, _ := json.Marshal(appruveReq)
 		verificationLog.Strategy = "appruve"
 		verificationLog.Type = v.Request.Type
 		verificationLog.AccountId = strconv.Itoa(int(v.User.AccountID))
 		verificationLog.Status = "failed"
-		verificationLog.Payload = fmt.Sprintf("%v", appruveReq)
+		verificationLog.Payload = string(jsonByte)
 		err := verificationLog.CreateVerificationLog(v.Db.Verification)
 		if err != nil {
 			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
@@ -129,7 +133,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		}
 	}
 
-	if verificationLog.Attempts >= 5 {
+	if verificationLog.Attempts >= 10 {
 		v.ExtReq.SendExternalRequest(request.VerificationFailedNotification, external_models.VerificationFailedModel{
 			AccountID: v.User.AccountID,
 			Type:      v.Request.Type,
@@ -139,6 +143,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
+		verificationLog.Delete(v.Db.Verification)
 	} else {
 		verificationLog.Attempts += 1
 		verificationLog.UpdateAllFields(v.Db.Verification)
