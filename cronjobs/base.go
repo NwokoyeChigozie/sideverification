@@ -12,7 +12,7 @@ import (
 
 var (
 	cronJobs = map[string]CronJobObject{
-		"auto-verify-ids": {CronJob: VerifyIDs, Interval: time.Second * 10},
+		"auto-verify-ids": {CronJob: VerifyIDs, Interval: time.Minute * 10},
 	}
 )
 
