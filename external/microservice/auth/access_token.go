@@ -19,7 +19,7 @@ func (r *RequestObj) GetAccessToken() (external_models.AccessToken, error) {
 
 	err := r.getNewSendRequestObject(nil, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("get access_token", outBoundResponse, err)
+		logger.Error("get access_token", outBoundResponse, err)
 		return outBoundResponse.Data, err
 	}
 	logger.Info("get access_token", outBoundResponse)

@@ -94,7 +94,7 @@ func GetUserCredential(id, accountID int, vType string, extReq request.ExternalR
 func GetAuthorize(extReq request.ExternalRequest, logger *utility.Logger, data external_models.GetAuthorizeModel) (external_models.Authorize, error) {
 	authorizeInterface, err := extReq.SendExternalRequest(request.GetAuthorize, data)
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.Authorize{}, err
 	}
 
@@ -113,7 +113,7 @@ func GetAuthorize(extReq request.ExternalRequest, logger *utility.Logger, data e
 func CreateAuthorize(extReq request.ExternalRequest, logger *utility.Logger, data external_models.CreateAuthorizeModel) (external_models.Authorize, error) {
 	authorizeInterface, err := extReq.SendExternalRequest(request.CreateAuthorize, data)
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.Authorize{}, err
 	}
 
@@ -132,7 +132,7 @@ func CreateAuthorize(extReq request.ExternalRequest, logger *utility.Logger, dat
 func UpdateAuthorize(extReq request.ExternalRequest, logger *utility.Logger, data external_models.UpdateAuthorizeModel) (external_models.Authorize, error) {
 	authorizeInterface, err := extReq.SendExternalRequest(request.UpdateAuthorize, data)
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.Authorize{}, err
 	}
 
@@ -156,7 +156,7 @@ func GetCountryByCountryAndCurrency(extReq request.ExternalRequest, logger *util
 	})
 
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
 	}
 	country, ok := countryInterface.(external_models.Country)
@@ -174,7 +174,7 @@ func GetUserProfileByAccountID(extReq request.ExternalRequest, logger *utility.L
 		AccountID: uint(accountID),
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.UserProfile{}, err
 	}
 
@@ -195,7 +195,7 @@ func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utili
 		AccountID: uint(accountID),
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
 	}
 
@@ -215,7 +215,7 @@ func GetBankDetailsByAccountID(extReq request.ExternalRequest, logger *utility.L
 		AccountID: uint(accountID),
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return external_models.BankDetail{}, fmt.Errorf("You are yet to add your bank account details")
 	}
 

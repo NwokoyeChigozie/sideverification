@@ -26,7 +26,7 @@ type VerifcationJobModel struct {
 
 func (v *VerifcationJobModel) VerificationJob() (int, error) {
 	if v == nil {
-		v.ExtReq.Logger.Info((http.StatusInternalServerError), "verification job model is empty")
+		v.ExtReq.Logger.Error((http.StatusInternalServerError), "verification job model is empty")
 		return http.StatusInternalServerError, fmt.Errorf("verification job model is empty")
 	}
 	var (
@@ -57,7 +57,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 
 			err := v.Verification.Delete(v.Db.Verification)
 			if err != nil {
-				v.ExtReq.Logger.Info((http.StatusInternalServerError), err.Error())
+				v.ExtReq.Logger.Error((http.StatusInternalServerError), err.Error())
 				return http.StatusInternalServerError, err
 			}
 
@@ -66,7 +66,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			if err == nil {
 				err := verificationDoc.Delete(v.Db.Verification)
 				if err != nil {
-					v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+					v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 					return http.StatusInternalServerError, err
 				}
 			}
@@ -82,7 +82,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 		v.Verification.IsVerified = true
 		err := v.Verification.UpdateAllFields(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 		verificationLog := models.VerificationLog{
@@ -95,7 +95,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			verificationLog.Status = "success"
 			err := verificationLog.UpdateAllFields(v.Db.Verification)
 			if err != nil {
-				v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+				v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 				return http.StatusInternalServerError, err
 			}
 		}
@@ -114,7 +114,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 	code, err := verificationLog.GetVerificationLogByAccountIDAndType(v.Db.Verification)
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			v.ExtReq.Logger.Info(strconv.Itoa(code), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(code), err.Error())
 			return code, err
 		}
 
@@ -126,7 +126,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		verificationLog.Payload = string(jsonByte)
 		err := verificationLog.CreateVerificationLog(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 	}
@@ -138,7 +138,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		})
 		err := v.Verification.Delete(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 		verificationLog.Delete(v.Db.Verification)
@@ -146,7 +146,7 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		verificationLog.Attempts += 1
 		verificationLog.UpdateAllFields(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 	}
