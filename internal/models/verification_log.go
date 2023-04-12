@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
@@ -33,6 +34,17 @@ func (v *VerificationLog) GetVerificationLogByAccountID(db *gorm.DB) (int, error
 	}
 	return http.StatusOK, nil
 }
+func (v *VerificationLog) GetVerificationLogByAccountIDAndType(db *gorm.DB) (int, error) {
+	err, nilErr := postgresql.SelectOneFromDb(db, &v, "account_id = ? and LOWER(type)=?", v.AccountId, strings.ToLower(v.Type))
+	if nilErr != nil {
+		return http.StatusBadRequest, nilErr
+	}
+
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusOK, nil
+}
 
 func (v *VerificationLog) CreateVerificationLog(db *gorm.DB) error {
 	err := postgresql.CreateOneRecord(db, &v)
@@ -53,4 +65,13 @@ func (v *VerificationLog) Delete(db *gorm.DB) error {
 		return fmt.Errorf("verification log delete failed: %v", err.Error())
 	}
 	return nil
+}
+
+func (v *VerificationLog) GetAllByStatus(db *gorm.DB) ([]VerificationLog, error) {
+	details := []VerificationLog{}
+	err := postgresql.SelectAllFromDb(db, "asc", &details, "status = ? ", v.Status)
+	if err != nil {
+		return details, err
+	}
+	return details, nil
 }

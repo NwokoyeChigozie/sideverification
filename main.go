@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/vesicash/verification-ms/external/request"
 	"github.com/vesicash/verification-ms/internal/config"
 	"github.com/vesicash/verification-ms/internal/models/migrations"
 	"github.com/vesicash/verification-ms/pkg/repository/storage/postgresql"
 
+	"github.com/vesicash/verification-ms/cronjobs"
 	"github.com/vesicash/verification-ms/utility"
 
 	"github.com/go-playground/validator/v10"
@@ -29,6 +31,11 @@ func main() {
 
 	r := router.Setup(logger, validatorRef, db, &configuration.App)
 	rM := router.SetupMetrics(&configuration.App)
+
+	// cronjobs
+	if configuration.Server.RunCronJobs {
+		go cronjobs.SetupCronJobs(request.ExternalRequest{Logger: logger}, db, configuration.Server.CronJobs)
+	}
 
 	go func(logger *utility.Logger, metricsPort string) {
 		utility.LogAndPrint(logger, fmt.Sprintf("Metric Server is starting at 127.0.0.1:%s", metricsPort))

@@ -1,6 +1,7 @@
 package verification
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -25,7 +26,7 @@ type VerifcationJobModel struct {
 
 func (v *VerifcationJobModel) VerificationJob() (int, error) {
 	if v == nil {
-		v.ExtReq.Logger.Info((http.StatusInternalServerError), "verification job model is empty")
+		v.ExtReq.Logger.Error((http.StatusInternalServerError), "verification job model is empty")
 		return http.StatusInternalServerError, fmt.Errorf("verification job model is empty")
 	}
 	var (
@@ -39,7 +40,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			DateOfBirth:  v.UserProfile.Dob,
 		}
 	)
-	fmt.Println(fmt.Sprintf("%v, new: %v", appruveReq, *v))
+	// fmt.Println(fmt.Sprintf("%v, new: %v", appruveReq, *v))
 
 	statusCode, _ := appruveReq.Process(*v)
 	if statusCode != http.StatusOK {
@@ -56,7 +57,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 
 			err := v.Verification.Delete(v.Db.Verification)
 			if err != nil {
-				v.ExtReq.Logger.Info((http.StatusInternalServerError), err.Error())
+				v.ExtReq.Logger.Error((http.StatusInternalServerError), err.Error())
 				return http.StatusInternalServerError, err
 			}
 
@@ -65,7 +66,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			if err == nil {
 				err := verificationDoc.Delete(v.Db.Verification)
 				if err != nil {
-					v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+					v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 					return http.StatusInternalServerError, err
 				}
 			}
@@ -81,7 +82,7 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 		v.Verification.IsVerified = true
 		err := v.Verification.UpdateAllFields(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 		verificationLog := models.VerificationLog{
@@ -89,12 +90,12 @@ func (v *VerifcationJobModel) VerificationJob() (int, error) {
 			Status:    "failed",
 			Type:      v.Request.Type,
 		}
-		_, err = verificationLog.GetVerificationLogByAccountID(v.Db.Verification)
+		_, err = verificationLog.GetVerificationLogByAccountIDAndType(v.Db.Verification)
 		if err == nil {
 			verificationLog.Status = "success"
 			err := verificationLog.UpdateAllFields(v.Db.Verification)
 			if err != nil {
-				v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+				v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 				return http.StatusInternalServerError, err
 			}
 		}
@@ -110,40 +111,42 @@ func saveVerificationLogs(v VerifcationJobModel, appruveReq AppruveReq) (int, er
 		Status:    "failed",
 		Type:      v.Request.Type,
 	}
-	code, err := verificationLog.GetVerificationLogByAccountID(v.Db.Verification)
+	code, err := verificationLog.GetVerificationLogByAccountIDAndType(v.Db.Verification)
 	if err != nil {
 		if code == http.StatusInternalServerError {
-			v.ExtReq.Logger.Info(strconv.Itoa(code), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(code), err.Error())
 			return code, err
 		}
 
+		jsonByte, _ := json.Marshal(appruveReq)
 		verificationLog.Strategy = "appruve"
 		verificationLog.Type = v.Request.Type
 		verificationLog.AccountId = strconv.Itoa(int(v.User.AccountID))
 		verificationLog.Status = "failed"
-		verificationLog.Payload = fmt.Sprintf("%v", appruveReq)
+		verificationLog.Payload = string(jsonByte)
 		err := verificationLog.CreateVerificationLog(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 	}
 
-	if verificationLog.Attempts >= 5 {
+	if verificationLog.Attempts >= 6 {
 		v.ExtReq.SendExternalRequest(request.VerificationFailedNotification, external_models.VerificationFailedModel{
 			AccountID: v.User.AccountID,
 			Type:      v.Request.Type,
 		})
 		err := v.Verification.Delete(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
+		verificationLog.Delete(v.Db.Verification)
 	} else {
 		verificationLog.Attempts += 1
 		verificationLog.UpdateAllFields(v.Db.Verification)
 		if err != nil {
-			v.ExtReq.Logger.Info(strconv.Itoa(http.StatusInternalServerError), err.Error())
+			v.ExtReq.Logger.Error(strconv.Itoa(http.StatusInternalServerError), err.Error())
 			return http.StatusInternalServerError, err
 		}
 	}

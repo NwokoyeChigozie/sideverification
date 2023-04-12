@@ -23,13 +23,13 @@ func (r *RequestObj) RaveResolveBankAccount() (string, error) {
 
 	data, ok := idata.(external_models.ResolveAccountRequest)
 	if !ok {
-		logger.Info("rave resolve bank account", idata, "request data format error")
+		logger.Error("rave resolve bank account", idata, "request data format error")
 		return "", fmt.Errorf("request data format error")
 	}
 
 	err := r.getNewSendRequestObject(data, headers, "").SendRequest(&outBoundResponse)
 	if err != nil {
-		logger.Info("rave resolve bank account", outBoundResponse, err.Error())
+		logger.Error("rave resolve bank account", outBoundResponse, err.Error())
 		if external.ResponseCode != nil {
 			if *external.ResponseCode == 400 {
 				return "", nil

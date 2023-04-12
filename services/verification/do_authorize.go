@@ -97,7 +97,7 @@ func DoAuthorizeService(extReq request.ExternalRequest, logger *utility.Logger, 
 		Status:    authorizationRequiredStatus,
 	})
 	if err != nil {
-		logger.Info(err.Error())
+		logger.Error(err.Error())
 		return models.DoAuthorizeResponse{}, err.Error(), http.StatusInternalServerError, err
 	}
 
