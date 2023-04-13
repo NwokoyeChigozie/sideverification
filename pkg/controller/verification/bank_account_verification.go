@@ -35,14 +35,14 @@ func (base *Controller) VerifyBankAccount(c *gin.Context) {
 		return
 	}
 
-	verified, code, err := verification.VerifyBankAccountService(base.ExtReq, base.Logger, req, base.Db, *user)
+	accountDetails, code, err := verification.VerifyBankAccountService(base.ExtReq, base.Logger, req, base.Db, *user)
 	if err != nil {
 		rd := utility.BuildErrorResponse(code, "error", err.Error(), err, nil)
 		c.JSON(code, rd)
 		return
 	}
 
-	rd := utility.BuildSuccessResponse(http.StatusOK, "success", gin.H{"verified": verified})
+	rd := utility.BuildSuccessResponse(http.StatusOK, "success", accountDetails)
 	c.JSON(http.StatusOK, rd)
 
 }
