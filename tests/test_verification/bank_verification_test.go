@@ -66,7 +66,19 @@ func TestBankAccountVerification(t *testing.T) {
 		Message      string
 	}{
 		{
-			Name: "OK bank account verification",
+			Name: "OK bank account verification without account name",
+			RequestBody: models.VerifyBankAccountRequest{
+				BankCode:      "044",
+				AccountNumber: "0983746574",
+			},
+			ExpectedCode: http.StatusOK,
+			Message:      "success",
+			Headers: map[string]string{
+				"Content-Type":  "application/json",
+				"Authorization": "Bearer " + token.String(),
+			},
+		}, {
+			Name: "OK bank account verification with account name",
 			RequestBody: models.VerifyBankAccountRequest{
 				BankCode:      "044",
 				AccountName:   "Account Name",
@@ -83,18 +95,6 @@ func TestBankAccountVerification(t *testing.T) {
 			Name: "no bank code",
 			RequestBody: models.VerifyBankAccountRequest{
 				AccountName:   "Account Name",
-				AccountNumber: "0983746574",
-			},
-			ExpectedCode: http.StatusBadRequest,
-			Headers: map[string]string{
-				"Content-Type":  "application/json",
-				"Authorization": "Bearer " + token.String(),
-			},
-		},
-		{
-			Name: "no account name",
-			RequestBody: models.VerifyBankAccountRequest{
-				BankCode:      "044",
 				AccountNumber: "0983746574",
 			},
 			ExpectedCode: http.StatusBadRequest,

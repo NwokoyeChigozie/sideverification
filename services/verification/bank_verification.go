@@ -12,30 +12,34 @@ import (
 	"github.com/vesicash/verification-ms/utility"
 )
 
-func VerifyBankAccountService(extReq request.ExternalRequest, Logger *utility.Logger, req models.VerifyBankAccountRequest, db postgresql.Databases, user external_models.User) (bool, int, error) {
+func VerifyBankAccountService(extReq request.ExternalRequest, Logger *utility.Logger, req models.VerifyBankAccountRequest, db postgresql.Databases, user external_models.User) (external_models.ResolveAccountSuccessResponseData, int, error) {
 	accountNameInterface, err := extReq.SendExternalRequest(request.RaveResolveBankAccount, external_models.ResolveAccountRequest{
 		AccountBank:   req.BankCode,
 		AccountNumber: req.AccountNumber,
 	})
 
 	if err != nil {
-		return false, http.StatusBadRequest, fmt.Errorf("invalid bank code or account number")
+		return external_models.ResolveAccountSuccessResponseData{}, http.StatusBadRequest, fmt.Errorf("invalid bank code or account number")
 	}
 
-	accountName, ok := accountNameInterface.(string)
+	accountDetails, ok := accountNameInterface.(external_models.ResolveAccountSuccessResponseData)
 	if !ok {
-		return false, http.StatusInternalServerError, fmt.Errorf("error verifying account")
+		return accountDetails, http.StatusInternalServerError, fmt.Errorf("error verifying account")
 	}
 
-	if accountName == "" {
-		return false, http.StatusBadRequest, fmt.Errorf("could not retrieve account name")
+	if accountDetails.AccountName == "" {
+		return accountDetails, http.StatusBadRequest, fmt.Errorf("could not retrieve account name")
 	}
 
-	if !MatchNames(accountName, req.AccountName) {
-		return false, http.StatusBadRequest, fmt.Errorf("account Name does not tally with account number")
+	if req.AccountName == "" {
+		return accountDetails, http.StatusOK, nil
 	}
 
-	return true, http.StatusOK, nil
+	if !MatchNames(accountDetails.AccountName, req.AccountName) {
+		return accountDetails, http.StatusBadRequest, fmt.Errorf("account Name does not tally with account number")
+	}
+
+	return accountDetails, http.StatusOK, nil
 }
 
 func MatchNames(name1, name2 string) bool {
