@@ -28,32 +28,14 @@ func RequestPhoneVerificationService(extReq request.ExternalRequest, logger *uti
 	}
 
 	if req.PhoneNumber != "" {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{PhoneNumber: req.PhoneNumber})
+		us, err := GetUserWithPhone(extReq, req.PhoneNumber)
 		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
 	} else if req.AccountID != 0 {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
+		us, err := GetUserWithAccountID(extReq, req.AccountID)
 		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
@@ -182,17 +164,8 @@ func VerifyPhoneService(extReq request.ExternalRequest, logger *utility.Logger, 
 		return http.StatusBadRequest, fmt.Errorf("enter either code or token")
 	}
 
-	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
+	user, err := GetUserWithAccountID(extReq, req.AccountID)
 	if err != nil {
-		return http.StatusInternalServerError, err
-	}
-
-	user, ok := usItf.(external_models.User)
-	if !ok {
-		return http.StatusInternalServerError, fmt.Errorf("response data format error")
-	}
-
-	if user.ID == 0 {
 		return http.StatusInternalServerError, fmt.Errorf("user not found")
 	}
 

@@ -39,5 +39,10 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 
 		verificationAuthUrl.POST("/authorize", verification.DoAuthorize)
 	}
+
+	verificationAppUrl := r.Group(fmt.Sprintf("%v", ApiVersion), middleware.Authorize(db, extReq, middleware.AppType))
+	{
+		verificationAppUrl.POST("/check_verification", verification.CheckVerificationApp)
+	}
 	return r
 }

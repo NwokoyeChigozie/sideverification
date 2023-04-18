@@ -68,13 +68,13 @@ func VerifyIDCardService(extReq request.ExternalRequest, logger *utility.Logger,
 	fmt.Println("regex", regex)
 	if regex != "" {
 		if !validateID(req.ID, req.Type, regex) {
-			return http.StatusBadRequest, fmt.Errorf("Invalid ID value supplied, make sure it's the correct value format for %v in your country %v, check your card to verify", req.Type, country.Name)
+			return http.StatusBadRequest, fmt.Errorf("invalid ID value supplied, make sure it's the correct value format for %v in your country %v, check your card to verify", req.Type, country.Name)
 		}
 	}
 
 	strategy, status := getCountryVerificationStrategy(country.CountryCode, req.Type)
 	if !status {
-		return http.StatusBadRequest, fmt.Errorf("The verification type %v is not available for your country %v", req.Type, country.Name)
+		return http.StatusBadRequest, fmt.Errorf("the verification type %v is not available for your country %v", req.Type, country.Name)
 	}
 
 	verificationDocs := models.VerificationDoc{AccountID: int(user.AccountID), Type: req.Type}

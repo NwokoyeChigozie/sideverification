@@ -26,32 +26,14 @@ func RequestEmailVerificationService(extReq request.ExternalRequest, logger *uti
 	}
 
 	if accountID != 0 {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(accountID)})
+		us, err := GetUserWithAccountID(extReq, accountID)
 		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
 	} else if emailAddress != "" {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: emailAddress})
+		us, err := GetUserWithEmail(extReq, emailAddress)
 		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
@@ -166,32 +148,14 @@ func VerifyEmailService(extReq request.ExternalRequest, logger *utility.Logger, 
 	}
 
 	if req.AccountID != 0 {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(req.AccountID)})
+		us, err := GetUserWithAccountID(extReq, req.AccountID)
 		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us
 	} else if req.EmailAddress != "" {
-		usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: req.EmailAddress})
+		us, err := GetUserWithEmail(extReq, req.EmailAddress)
 		if err != nil {
-			return http.StatusInternalServerError, err
-		}
-
-		us, ok := usItf.(external_models.User)
-		if !ok {
-			return http.StatusInternalServerError, fmt.Errorf("response data format error")
-		}
-
-		if us.ID == 0 {
 			return http.StatusInternalServerError, fmt.Errorf("user not found")
 		}
 		user = us

@@ -157,14 +157,14 @@ func GetCountryByCountryAndCurrency(extReq request.ExternalRequest, logger *util
 
 	if err != nil {
 		logger.Error(err.Error())
-		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile.")
+		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 	country, ok := countryInterface.(external_models.Country)
 	if !ok {
 		return external_models.Country{}, fmt.Errorf("response data format error")
 	}
 	if country.ID == 0 {
-		return external_models.Country{}, fmt.Errorf("Your country could not be resolved, please update your profile")
+		return external_models.Country{}, fmt.Errorf("your country could not be resolved, please update your profile")
 	}
 
 	return country, nil
@@ -196,7 +196,7 @@ func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utili
 	})
 	if err != nil {
 		logger.Error(err.Error())
-		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
+		return external_models.BusinessProfile{}, fmt.Errorf("business lacks a profile")
 	}
 
 	businessProfile, ok := businessProfileInterface.(external_models.BusinessProfile)
@@ -205,7 +205,7 @@ func GetBusinessProfileByAccountID(extReq request.ExternalRequest, logger *utili
 	}
 
 	if businessProfile.ID == 0 {
-		return external_models.BusinessProfile{}, fmt.Errorf("Business lacks a profile.")
+		return external_models.BusinessProfile{}, fmt.Errorf("business lacks a profile")
 	}
 	return businessProfile, nil
 }
@@ -216,7 +216,7 @@ func GetBankDetailsByAccountID(extReq request.ExternalRequest, logger *utility.L
 	})
 	if err != nil {
 		logger.Error(err.Error())
-		return external_models.BankDetail{}, fmt.Errorf("You are yet to add your bank account details")
+		return external_models.BankDetail{}, fmt.Errorf("you are yet to add your bank account details")
 	}
 
 	bankDetail, ok := bankDetailsInterface.(external_models.BankDetail)
@@ -225,7 +225,55 @@ func GetBankDetailsByAccountID(extReq request.ExternalRequest, logger *utility.L
 	}
 
 	if bankDetail.ID == 0 {
-		return external_models.BankDetail{}, fmt.Errorf("You are yet to add your bank account details")
+		return external_models.BankDetail{}, fmt.Errorf("you are yet to add your bank account details")
 	}
 	return bankDetail, nil
+}
+func GetUserWithAccountID(extReq request.ExternalRequest, accountID int) (external_models.User, error) {
+	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{AccountID: uint(accountID)})
+	if err != nil {
+		return external_models.User{}, err
+	}
+
+	us, ok := usItf.(external_models.User)
+	if !ok {
+		return external_models.User{}, fmt.Errorf("response data format error")
+	}
+
+	if us.ID == 0 {
+		return external_models.User{}, fmt.Errorf("user not found")
+	}
+	return us, nil
+}
+func GetUserWithEmail(extReq request.ExternalRequest, email string) (external_models.User, error) {
+	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{EmailAddress: email})
+	if err != nil {
+		return external_models.User{}, err
+	}
+
+	us, ok := usItf.(external_models.User)
+	if !ok {
+		return external_models.User{}, fmt.Errorf("response data format error")
+	}
+
+	if us.ID == 0 {
+		return external_models.User{}, fmt.Errorf("user not found")
+	}
+	return us, nil
+}
+func GetUserWithPhone(extReq request.ExternalRequest, phone string) (external_models.User, error) {
+	usItf, err := extReq.SendExternalRequest(request.GetUserReq, external_models.GetUserRequestModel{PhoneNumber: phone})
+	if err != nil {
+		return external_models.User{}, err
+	}
+
+	us, ok := usItf.(external_models.User)
+	if !ok {
+		return external_models.User{}, fmt.Errorf("response data format error")
+	}
+
+	if us.ID == 0 {
+		return external_models.User{}, fmt.Errorf("user not found")
+	}
+	return us, nil
 }
