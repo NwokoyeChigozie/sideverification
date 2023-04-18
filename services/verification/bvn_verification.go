@@ -55,10 +55,6 @@ func VerifyBVNService(extReq request.ExternalRequest, Logger *utility.Logger, db
 
 	userCredentials, code, err := GetUserCredential(0, int(user.AccountID), "bvn", extReq)
 	if err != nil {
-		if code == http.StatusInternalServerError {
-			return false, code, err
-		}
-
 		_, code, err := CreateUserCredential(int(user.AccountID), "bvn", "", bvn, extReq)
 		if err != nil {
 			return false, code, err
