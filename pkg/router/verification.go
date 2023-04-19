@@ -44,5 +44,13 @@ func Verification(r *gin.Engine, ApiVersion string, validator *validator.Validat
 	{
 		verificationAppUrl.POST("/check_verification", verification.CheckVerificationApp)
 	}
+
+	verificationjobsUrl := r.Group(fmt.Sprintf("%v/jobs", ApiVersion))
+	{
+		verificationjobsUrl.POST("/start", verification.StartCronJob)
+		verificationjobsUrl.POST("/start-bulk", verification.StartCronJobsBulk)
+		verificationjobsUrl.POST("/stop", verification.StopCronJob)
+		verificationjobsUrl.PATCH("/update_interval", verification.UpdateCronJobInterval)
+	}
 	return r
 }
