@@ -13,8 +13,8 @@ import (
 type Verification struct {
 	ID                 uint      `gorm:"column:id; type:uint; not null; primaryKey; unique; autoIncrement" json:"id"`
 	AccountID          int       `gorm:"column:account_id; type:int; not null; comment: Account id of the user being verified" json:"account_id"`
-	VerificationCodeId int       `gorm:"column:verification_code_id; type:int; not null; comment: Verification Code Id from the verification codes table" json:"verification_code_id"`
-	VerificationDocId  int       `gorm:"column:verification_doc_id; type:int; not null; comment: Verification Code Id from the verification codes table" json:"verification_doc_id"`
+	VerificationCodeId int       `gorm:"column:verification_code_id; type:int; comment: Verification Code Id from the verification codes table" json:"verification_code_id"`
+	VerificationDocId  int       `gorm:"column:verification_doc_id; type:int; comment: Verification Code Id from the verification codes table" json:"verification_doc_id"`
 	VerificationType   string    `gorm:"column:verification_type; type:varchar(250); not null; comment: Verification Type (email|phone|bvn)" json:"verification_type"`
 	IsVerified         bool      `gorm:"column:is_verified; type:bool; default:false;not null; comment: If user is verified (true|false)" json:"is_verified"`
 	VerifiedAt         time.Time `gorm:"column:verified_at" json:"verified_at"`
